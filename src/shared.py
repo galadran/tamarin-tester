@@ -8,6 +8,18 @@ def getProtocols(path):
 	#Returns a list of strings holding each spthy file
 	return glob.glob(path+"/**/*.spthy",recursive=True)
 
+def getValidProtocols(tamarin_command,path):
+	protocols = getProtocols(path)
+	validProtocols= list()
+	for p in protocols:
+        	if not validateProtocol(tamarin_command,p) and not validDiffProtocol(tamarin_command,p):
+                	print("Skipping " + p + " as well formedness check failed.")
+                	continue
+        	else:
+                	validProtocols.append(p)
+	print(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the checks.")
+	return validProtocols
+
 
 def getName(path):
 	#Return the name of a protocol at a file
@@ -35,15 +47,9 @@ def validDiffProtocol(tamarin_command,path):
 	#Tests whether a given protocol is valid with a diff flag
 	return validateProtocol(tamarin_command,"--diff "+path)
 
-def loadBench(path):
-	#Returns a list of benchmark results
-	return 0
-class Result: 
-	def __init__(self,name,result,expectedTime,maxTime):
-		self.name = name
-		self.result = result
-		self.expectedTime = expectedTime
-		self.maxTime = maxTime
+def runAsDiff(tamarin_command,path):
+	if not validateProtocol(tamarin_command,path) and validDiffProtocol(tamarin_command,path):
+		return 1
+	else:
+		return 0
 
-	def __str__(self):
-		return str((self.name,self.result,self.expectedTime,self.maxTime))
