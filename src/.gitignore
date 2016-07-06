@@ -1,0 +1,3 @@
+*.pyc
+*.attr
+__pycache__/*
