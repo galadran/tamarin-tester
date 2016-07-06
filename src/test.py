@@ -1,7 +1,7 @@
-from shared import * 
+from shared import *
 from bench import *
 from blessings import Terminal
-from results import * 
+from results import *
 from tqdm import tqdm
 
 term = Terminal()
@@ -9,43 +9,60 @@ term = Terminal()
 class Tester:
 	def __init__(self, config):
 		self.config = config
+		#Load protocols and benchmarks
 		self.hashToPath = dict()
 		for p in getProtocols(config.protocols):
 			self.hashToPath[hashlib.sha256(open(p,'rb').read()).hexdigest()] = p
 		self.benchmarks = fileToResults(config.benchmark)
-		
+		#Counters for results
 		self.failures = 0
 		self.passed = 0
 		self.warning = 0
 		self.missing = 0
+		self.nolemmas = 0
 		self.total = len(self.hashToPath.keys())
-			
+
 	def ignoreBench(self, b):
+		#Returns 1 if a benchmark should be ignored, 0 otherwise
 		if "TIMEOUT" in b.lemmas and b.avgTime > config.absolute:
-			return 1
-		elif "NOLEMMAS" in b.lemmas:
 			return 1
 		else:
 			return 0
 
 	def performTest(self):
+		#Runs tests and compares them against benchmarks
 		config = self.config
+		#Protocols are removed from this set as they found in the benchmark
 		hashes = set(self.hashToPath.keys())
+		#For each benchmark, sorted from quickest to slowest
 		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),leave=True,desc="Testing against benchmarks"):
-			if b.fileHash not in hashes or self.ignoreBench(b):
+			if b.fileHash not in hashes or "TIMEOUT" in b.lemmas:
+				#We can ignore this benchmark as either we have no data or its not in our test input
 				continue
 			hashes.remove(b.fileHash)
+			#NoLemmas means that the benchmark had nothing to prove and hence we cannot test here
+			if "NOLEMMAS" in b.lemmas:
+				self.nolemmas += 1
+				tqdm.write(term.bold(term.yellow("NOLEMMAS:")) + self.hashToPath[b.fileHash][len(config.protocols):])
+				continue
+			#Here we check for well formedness
 			if (not b.diff and validateProtocol(config.tamarin,self.hashToPath[b.fileHash])) or (b.diff and validDiffProtocol(config.tamarin,self.hashToPath[b.fileHash])):
 					tqdm.write(self.testProtocol(self.hashToPath[b.fileHash],b),end="")
 			else:
-				tqdm.write(term.bold(term.red("FAILED ")) + self.hashToPath[b.fileHash][len(path):] + "\n" + term.red("\t MALFORMED") + " should pass well-formedness check")
+				#Both test and benchmark versions should agree on well formedness
+				tqdm.write(term.bold(term.red("FAILED ")) + self.hashToPath[b.fileHash][len(config.protocols):] + "\n" + term.red("\t MALFORMED") + " should pass well-formedness check")
 				self.failures+= 1
+		#Print out protocols we could not find a benchmark for
 		for h in hashes:
 			self.missing+= 1
 			print(term.yellow(term.bold("UNMATCHED "))+ self.hashToPath[h][len(config.protocols):])
 		self.printSummary()
 
 	def printSummary(self):
+		#'Pretty Print' a summary based on our counters
+		print("=====================================")
+		print("============== " + term.bold("Summary") + " ==============")
+		print("=====================================")
 		print(term.bold("TOTAL: " + str(self.total)))
 		if self.failures != 0:
 			print(term.bold(term.red("FAILED: " + str(self.failures))))
@@ -59,53 +76,56 @@ class Tester:
 			print(term.bold(term.yellow("MISSED: " + str(self.missing))))
 		else:
 			print(term.bold(term.green("MISSED: " + str(self.missing))))
+		if self.nolemmas != 0:
+			print(term.bold(term.yellow("NOLEMMAS: " + str(self.nolemmas))))
+		else:
+			print(term.bold(term.green("NOLEMMAS: " + str(self.nolemmas))))
 		if self.passed == self.total:
 			print(term.bold(term.green("PASSED: " + str(self.passed))))
 		elif self.passed > 0:
 			print(term.bold(term.yellow("PASSED: " + str(self.passed))))
 		else:
 			print(term.bold(term.red("PASSED: " + str(self.passed))))
-
-	def compareResults(self,testOutput,bench):
-		message = ""
-		for i in range(0,len(testOutput)):
-			if testOutput[i][0] != bench.lemmas[i][0]:
-				print(testOutput[i][0] + " " + str(bench.lemmas[i][0]))
-				print(term.red("ERROR")+ " Lemma order mismatch")
-				exit(1)
-			if testOutput[i][1] != bench.lemmas[i][1]:
-				message += term.bold(term.red("\t INCORRECT: "))+ testOutput[i][0] + " tested as " + testOutput[i][1] + " but should be " + bench.lemmas[i][1] + "\n"
-			if testOutput[i][2] > bench.lemmas[i][2]:
-				message += term.bold(term.red("\t STEPSIZE: ")) + testOutput[i][0] + " step count increased to " + testOutput[i][2] + "from benchmark at " + bench.lemmas[i][2] + "\n"
-			if testOutput[i][2] < bench.lemmas[i][2]:
-				message += term.bold(term.blue("\t STEPSIZE: ")) + testOutput[i][0] + " step count decreased to " + testOutput[i][2] + "from benchmark at " + bench.lemmas[i][2] + "\n"
-		return message
+		if self.failures > 0:
+			print("=====================================")
+			print("=============== " + term.red(term.bold("FAIL")) + " ================")
+			print("=====================================")
+		elif self.warning + self.missing > 0:
+			print("=====================================")
+			print("=============== " + term.yellow(term.bold("????")) + " ================")
+			print("=====================================")
+		else:
+			print("=====================================")
+			print("=============== " + term.green(term.bold("PASS")) + " ================")
+			print("=====================================")
 
 	def testProtocol(self,protocol_path,bench):
+		#Given a specific protocol path and a benchmark result, test it
 		config = self.config
 		message = ""
-		start = time.time()
+		#We stop Tamarin when we go over our absolute or relative maximum
 		allowedTime = min(config.absolute,bench.avgTime*config.contingency)
 		try:
+			#Ignore Tamarin Error messages (they will be unhelpful and misleading for us)
 			with open(os.devnull, 'w') as devnull:
+				#Launch the Tamarin instance
 				output = runWithTimeout(config.tamarin+" "+getFlags(config.userFlags,bench.diff)+" "+ protocol_path,devnull,allowedTime)
+				#If we TIMEOUT here, the benchmark did not and hence this is a failure
 				if "TIMEOUT" in str(output):
 					self.failures+= 1
 					return term.bold(term.red("FAILED ")) + protocol_path[len(config.protocols):] + "\n" + term.bold(term.red("\t TIMEOUT ")) + "after " + str(allowedTime) + " seconds \n"
 		except CalledProcessError:
+			#This indicates Tamarin raised an error. We output the file we had a problem with
 			print(term.red("ERROR") + " Testing " + protocol_path[len(config.protocols):])
 			exit(1)
-		end = time.time() - start
-		end_state = extractLemmas(trimOutput(str(output).replace("\\n","\n")))
-		message = self.compareResults(end_state,bench)
+		message = compareResults(extractLemmas(trimOutput(str(output).replace("\\n","\n"))),bench)
+		#Add a title message to our sublistings
 		if "INCORRECT" in message:
 			self.failures+= 1
 			return term.bold(term.red("FAILED ")) + protocol_path[len(config.protocols):] + "\n" + message
-		elif "WARNING" in message:
+		elif "STEPSIZE" in message:
 			self.warning+= 1
-			return term.bold(term.yellow("STEPSIZE")) + protocol_path[len(config.protocols):] + "\n" + message
+			return term.bold(term.yellow("WARNING ")) + protocol_path[len(config.protocols):] + "\n" + message
 		else:
 			self.passed+= 1
 			return term.bold(term.green("PASSED ")) + protocol_path[len(config.protocols):] + "\n" + message
-
-			

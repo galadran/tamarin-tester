@@ -1,6 +1,6 @@
 import ast
 import hashlib
-import sys 
+import sys
 import traceback
 from blessings import Terminal
 
@@ -8,16 +8,35 @@ term = Terminal()
 
 class Result:
 	def __init__(self,fileHash,diff,lemmas,avgTime):
-		#Do things
 		self.fileHash = str(fileHash)
 		self.diff = int(diff)
 		self.lemmas = lemmas #need to assert this is a list of 3-tuples
 		self.avgTime = float(avgTime)
-	
+
+def compareResults(testOutput,bench):
+	#This function compares two Results objects returns a message describing any discrepancies
+	message = ""
+	#For  each lemma
+	for i in range(0,len(testOutput)):
+		if testOutput[i][0] != bench.lemmas[i][0]:
+			#This should literally never happen, but a sanity check never hurt the sane
+			print(testOutput[i][0] + " " + str(bench.lemmas[i][0]))
+			print(term.red("ERROR")+ " Lemma order mismatch")
+			exit(1)
+		testSteps = int(testOutput[i][2])
+		benchSteps  = int(bench.lemmas[i][2])
+		#Check for a mistmatch on result (verified/falsfied)
+		if testOutput[i][1] != bench.lemmas[i][1]:
+			message += term.bold(term.red("\t INCORRECT: "))+ testOutput[i][0] + " tested as " + testOutput[i][1] + " but should be " + bench.lemmas[i][1] + "\n"
+		#Check for a change in step count
+		if testSteps > benchSteps:
+			message += term.bold(term.red("\t STEPSIZE: ")) + testOutput[i][0] + " step count INCREASED to " + str(testSteps) + " from benchmark at " + str(benchSteps) + "\n"
+		if testSteps < benchSteps:
+			message += term.bold(term.blue("\t STEPSIZE: ")) + testOutput[i][0] + " step count DECREASED to " + str(testSteps) + " from benchmark at " + str(benchSteps) + "\n"
+	return message
+
 def outputToResults(output, path, diff,avgTime):
-	#Return a new Results object
-	#Given the output from Tamarin, parse the summary
-	#Output should be a list of tuples (lemma_name,result,steps)
+	#Create a results object out of TRIMMED Tamarin Output
 	fileHash = hashlib.sha256(open(path, 'rb').read()).hexdigest()
 	if "TIMEOUT" in output:
 		return Result(fileHash,diff,"TIMEOUT",0.0)
@@ -26,6 +45,7 @@ def outputToResults(output, path, diff,avgTime):
 	return Result(fileHash,diff,extractLemmas(output),avgTime)
 
 def trimOutput(output):
+	#Records all important lines between Summary of Summary and end of output
 	reached = False
 	filtered = ""
 	for line in output.split('\n'):
@@ -36,8 +56,9 @@ def trimOutput(output):
 		if "analyzed: " in line:
 			reached = True
 	return filtered
-			
+
 def extractLemmas(filtered):
+	#Parses lemma lines into Records.
 	try:
 		lemmas = list()
 		if "DiffLemma" in filtered:
@@ -70,21 +91,20 @@ def extractLemmas(filtered):
 		return "NONE"
 
 def stringToResults(val):
-	#Return a new Results object
+	#Return a new Results object from a stored string
 	row = val.split("|")
 	if row[2] == "TIMEOUT" or row[2] == "NOLEMMAS":
 		return Result(row[0],row[1],row[2],row[3])
 	return Result(row[0],row[1],ast.literal_eval(row[2]),row[3])
-		
+
 def resultToString(res):
 	#Return a string representing a result object
 	if "TIMEOUT" in str(res.lemmas):
 		return ""
 	return res.fileHash + "|" + str(res.diff) + "|" +str(res.lemmas) + "|" + str(res.avgTime)
-		
+
 def fileToResults(f):
 	#Return a list of results objects.
-	#Returns a list of benchmark results
 	benchmarks = list()
 	for line in f:
 		benchmarks.append(stringToResults(line))
