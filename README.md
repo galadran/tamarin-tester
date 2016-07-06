@@ -4,4 +4,6 @@ This project is a lightwight black box tester for the [Tamarin Prover](https://g
 
 It aims to support rapid development of the Tamarin Prover by allowing for the quick verification of correctness by comparing development versions of Tamarin to known-good versions.  For now, it simply implements regression testing and will check that verification/falsication of lemmas remains the same and let the user decide about changed step counts.  
 
-<img src="https://asciinema.org/a/63ndwceeux0uzooblzdh39ei9.png" alt="Classic" width="200">
+#Example Usage:
+
+<a href="https://asciinema.org/a/63ndwceeux0uzooblzdh39ei9?speed=6"><img src="https://asciinema.org/a/63ndwceeux0uzooblzdh39ei9.png" alt="Classic" width="400" border="0"></a>
