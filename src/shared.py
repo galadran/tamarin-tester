@@ -10,12 +10,14 @@ import signal
 term = Terminal()
 
 def getFlags(userFlags, diff):
+	#Build a flag string for Tamarin
 	flags = userFlags + " --prove "
 	if diff:
 		flags += "--diff "
 	return flags
 
 def runWithTimeout(command,errOutput,time):
+		#Run a command (INSECURE) with a specified timeout
 		output = ""
 		with Popen(command,shell=True,stdout=PIPE,stderr=errOutput,preexec_fn=os.setsid) as process:
 			try:
@@ -30,11 +32,12 @@ def getProtocols(path):
 	return glob.glob(path+"/**/*.spthy",recursive=True)
 
 def getValidProtocols(tamarin_command,path):
+	#Given a list of protocols, check well-formedness of each
 	protocols = getProtocols(path)
 	validProtocols= list()
 	skips = ""
 	for p in tqdm(protocols,leave=True,desc="Well Formedness Checks"):
-		vp = validateProtocol(tamarin_command,p) 
+		vp = validateProtocol(tamarin_command,p)
 		vdp = validDiffProtocol(tamarin_command,p)
 		if vp !=1 and vdp != 1:
 			if vp + vdp == -2:
@@ -74,7 +77,7 @@ def validateProtocol(tamarin_command,path):
 			return 1
 		elif "TIMEOUT" in str(output):
 			return -1
-		else: 
+		else:
 			return 0
 	except CalledProcessError:
 		return 0
@@ -88,4 +91,3 @@ def runAsDiff(tamarin_command,path):
 		return 1
 	else:
 		return 0
-
