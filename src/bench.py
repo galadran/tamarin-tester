@@ -8,7 +8,7 @@ from tqdm import tqdm
 term = Terminal()
 
 class Bencher:
-	def __init(self, config):
+	def __init__(self, config):
 		self.config = config
 	
 	def benchProtocol(self,protocol_path):
@@ -28,19 +28,15 @@ class Bencher:
 				exit(1)
 			end = time.time() - start
 			totalTime += end
-		return outputToResults(output,protocol_path,diff,totalTime/repitions)
+		return outputToResults(output,protocol_path,diff,totalTime/config.repitions)
 
 	def performBenchmark(self):
 		config = self.config
-		start = time.time()
 		protocols = getValidProtocols(config.tamarin,config.protocols)
 		if len(protocols) == 0:
 			print(term.red("ERROR") + " No valid protocols!")
 			exit(1)
-		output = open("benchmark.txt","w")
-		for p in tqdm(protocols,leave=False):
-			output.write(resultToString(self.benchProtocol(p)+"\n"))
-		print(term.green("Benchmark written to 'benchmark.txt'"))
-		end = time.time() - start
-		print("Elapsed time: " + str(end))
-
+		output = open(config.output,'w')
+		for p in tqdm(protocols,leave=True,desc="Benchmarking protocols"):
+			output.write(resultToString(self.benchProtocol(p))+"\n")
+		print("Benchmark written to " + config.output)

@@ -82,10 +82,9 @@ def resultToString(res):
 		return ""
 	return res.fileHash + "|" + str(res.diff) + "|" +str(res.lemmas) + "|" + str(res.avgTime)
 		
-def fileToResults(path):
+def fileToResults(f):
 	#Return a list of results objects.
 	#Returns a list of benchmark results
-	f = open(path,'r')
 	benchmarks = list()
 	for line in f:
 		benchmarks.append(stringToResults(line))

@@ -33,24 +33,25 @@ def getValidProtocols(tamarin_command,path):
 	protocols = getProtocols(path)
 	validProtocols= list()
 	skips = ""
-	for p in tqdm(protocols,leave=False):
+	for p in tqdm(protocols,leave=True,desc="Well Formedness Checks"):
 		vp = validateProtocol(tamarin_command,p) 
 		vdp = validDiffProtocol(tamarin_command,p)
 		if vp !=1 and vdp != 1:
 			if vp + vdp == -2:
 				skips += (term.yellow(term.bold("TIMEOUT ")) + p[len(path):] + " \n")
 			else:
-				skips += (term.yellow(term.bold("INCORRECT ")) + p[len(path):] + " \n")
+				skips += (term.yellow(term.bold("MALFORMED ")) + p[len(path):] + " \n")
 			continue
 		else:
 			validProtocols.append(p)
 	if len(validProtocols) == len(protocols):
-		print(term.green(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks."))
+		print(term.bold(term.green(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
 	elif 0 < len(validProtocols) and len(validProtocols) < len(protocols):
-		print(term.yellow(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks."))
+		print(term.bold(term.yellow(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
+		print(term.bold(term.yellow("The following failed and will not be benchmarked:")))
 		print(skips,end="")
 	elif len(validProtocols) == 0:
-		print(term.red(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks."))
+		print(term.bold(term.red(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
 	return validProtocols
 
 
@@ -68,7 +69,7 @@ def validateProtocol(tamarin_command,path):
 	#Tests whether a given protocol is well formed
 	try:
 		with open(os.devnull, 'w') as devnull:
-			output = runWithTimeout(tamarin_command+" "+path,devnull,1)
+			output = runWithTimeout(tamarin_command+" "+path,devnull,10)
 		if " All well-formedness checks were successful." in str(output):
 			return 1
 		elif "TIMEOUT" in str(output):
