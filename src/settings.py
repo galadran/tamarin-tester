@@ -10,7 +10,7 @@ class Settings:
 		if args.output is not None:
 			self.output = args.output #Where to put the benchmark file
 		else:
-			self.output = default=os.getcwd()+"/benchmark.txt"
+			self.output = default=os.getcwd()+"/benchmark.res"
 		if args.benchmark is not None:
 			self.benchmark = args.benchmark #Where to read the benchmark file from
 		else:

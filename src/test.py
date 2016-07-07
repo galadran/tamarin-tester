@@ -13,7 +13,7 @@ class Tester:
 		self.hashToPath = dict()
 		for p in getProtocols(config.protocols):
 			self.hashToPath[hashlib.sha256(open(p,'rb').read()).hexdigest()] = p
-		self.benchmarks = fileToResults(config.benchmark)
+		self.flags, self.benchmarks = fileToResults(config.benchmark)
 		#Counters for results
 		self.failures = 0
 		self.passed = 0
@@ -109,7 +109,7 @@ class Tester:
 			#Ignore Tamarin Error messages (they will be unhelpful and misleading for us)
 			with open(os.devnull, 'w') as devnull:
 				#Launch the Tamarin instance
-				output = runWithTimeout(config.tamarin+" "+getFlags(config.userFlags,bench.diff)+" "+ protocol_path,devnull,allowedTime)
+				output = runWithTimeout(config.tamarin+" "+getFlags(self.flags,bench.diff)+" "+ protocol_path,devnull,allowedTime)
 				#If we TIMEOUT here, the benchmark did not and hence this is a failure
 				if "TIMEOUT" in str(output):
 					self.failures+= 1

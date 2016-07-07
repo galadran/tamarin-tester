@@ -102,10 +102,15 @@ def resultToString(res):
 	if "TIMEOUT" in str(res.lemmas):
 		return ""
 	return res.fileHash + "|" + str(res.diff) + "|" +str(res.lemmas) + "|" + str(res.avgTime)
-
+	
 def fileToResults(f):
 	#Return a list of results objects.
 	benchmarks = list()
 	for line in f:
-		benchmarks.append(stringToResults(line))
-	return benchmarks
+		if line[1] == "#":
+			continue
+		elif line[1] == "$":
+			flags = line[1:]
+		else:
+			benchmarks.append(stringToResults(line))
+	return (flags,benchmarks)
