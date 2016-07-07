@@ -29,7 +29,7 @@ config = Settings(args)
 
 print(term.bold(term.blue("INFORMATIONAL ")) + "Tamarin Tester v0.3")
 if config.verbose:
-	print(term.bold(term.blue("INFORMATIONAL ")) + ""Verbose Logging Enabled")
+	print(term.bold(term.blue("INFORMATIONAL ")) + "Verbose Logging Enabled")
 
 if args.benchmark is None:
 	if config.verbose:
@@ -47,11 +47,12 @@ else:
 	if config.verbose:
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Mode: Comparing to Benchmark")
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Testing Tamarin Executable: " + config.tamarin)	
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark Input Location: " + config.benchmark)
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark Input Location: " + str(config.benchmark))
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Testing Protocols in: " + config.protocols)
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Contingency Factor: " + str(config.contingency))
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Max Proof Time: " + str(config.absolute))
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Max Check Time: " + str(config.checkTime))		
 	t = Tester(config)
+	t.checkOvertime()
 	t.estTestTime()
 	t.performTest()

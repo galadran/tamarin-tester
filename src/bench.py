@@ -60,10 +60,11 @@ class Bencher:
 			output.write(resultToString(self.benchProtocol(p))+"\n")
 		td = time.time() - start
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished benchmarking in " + prettyTime(td) + " seconds")
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark written to " + config.output)
 		self.original = len(self.parser.getProtocols())
 		self.check = self.original - len(protocols)
 		self.printSummary()
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark written to " + config.output)
+
 		
 	def printSummary(self):
 		#'Pretty Print' a summary based on our counters
