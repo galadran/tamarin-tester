@@ -44,6 +44,7 @@ class Bencher:
 	def performBenchmark(self):
 		#Perform a benchmark on all passed protocols
 		config = self.config
+		print("Validating protocols...")
 		protocols = self.parser.getValidProtocols()
 		if len(protocols) == 0:
 			print(term.red("ERROR") + " No valid protocols!")
@@ -51,7 +52,7 @@ class Bencher:
 		output = open(config.output,'w')
 		if len(config.userFlags) != 0:
 			output.write("$"+config.userFlags)
-		print("Benchmarking protocols, any failures will be listed below")
+		print("Benchmarking protocols...")
 		for p in tqdm(protocols,leave=True,desc="Benchmarking protocols"):
 			output.write(resultToString(self.benchProtocol(p))+"\n")
 		self.original = len(getProtocols(config.protocols))

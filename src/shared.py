@@ -29,20 +29,12 @@ class Parser:
 			vdp = self.validDiffProtocol(p)
 			if vp !=1 and vdp != 1:
 				if vp + vdp == -2:
-					skips += (term.yellow(term.bold("TIMEOUT ")) + p[len(path):] + " \n")
+					tqdm.write(term.yellow(term.bold("CHECK TIMEOUT ")) + p[len(path):])
 				else:
-					skips += (term.yellow(term.bold("MALFORMED ")) + p[len(path):] + " \n")
+					tqdm.write(term.yellow(term.bold("MALFORMED ")) + p[len(path):])
 				continue
 			else:
 				validProtocols.append(p)
-		if len(validProtocols) == len(protocols):
-			print(term.bold(term.green(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
-		elif 0 < len(validProtocols) and len(validProtocols) < len(protocols):
-			print(term.bold(term.yellow(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
-			print(term.bold(term.yellow("The following failed and will not be benchmarked:")))
-			print(skips,end="")
-		elif len(validProtocols) == 0:
-			print(term.bold(term.red(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
 		return validProtocols
 		
 	def validateProtocol(self,path):
