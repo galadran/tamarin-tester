@@ -47,6 +47,8 @@ class Bencher:
 			print(term.red("ERROR") + " No valid protocols!")
 			exit(1)
 		output = open(config.output,'w')
+		if len(config.userFlags) != 0:
+			output.write("$"+config.userFlags)
 		for p in tqdm(protocols,leave=True,desc="Benchmarking protocols"):
 			output.write(resultToString(self.benchProtocol(p))+"\n")
 		self.original = len(getProtocols(config.protocols)
