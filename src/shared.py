@@ -7,6 +7,7 @@ from blessings import Terminal
 from tqdm import tqdm
 import signal
 import time
+import datetime
 
 term = Terminal()
 
@@ -38,7 +39,7 @@ class Parser:
 			else:
 				validProtocols.append(p)
 		td = time.time() - start
-		print("Finished well-formedness checks in " + str(datetime.timedelta(seconds=td)))
+		print("Finished well-formedness checks in " + prettyTime(td))
 		return validProtocols
 		
 	def validateProtocol(self,path):
@@ -72,6 +73,10 @@ def getFlags(userFlags, diff):
 		flags += "--diff "
 	return flags
 
+def prettyTime(s):
+	return  str(datetime.timedelta(seconds=s)).split('.', 1)[0]
+
+	
 def runWithTimeout(command,errOutput,time):
 		#Run a command (INSECURE) with a specified timeout
 		output = ""
