@@ -46,7 +46,7 @@ class Bencher:
 	def performBenchmark(self):
 		#Perform a benchmark on all passed protocols
 		config = self.config
-		print("Validating protocols...")
+		print(term.bold(term.blue("INFORMATIONAL "))+"Validating protocols...")
 		protocols = self.parser.getValidProtocols()
 		if len(protocols) == 0:
 			print(term.red("ERROR") + " No valid protocols!")
@@ -54,16 +54,16 @@ class Bencher:
 		output = open(config.output,'w')
 		if len(config.userFlags) != 0:
 			output.write("$"+config.userFlags)
-		print("Benchmarking protocols...")
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmarking protocols...")
 		start = time.time()
 		for p in tqdm(protocols,leave=False,desc="Benchmarking protocols"):
 			output.write(resultToString(self.benchProtocol(p))+"\n")
 		td = time.time() - start
-		print("Finished benchmarking in " + prettyTime(td) + " seconds")
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished benchmarking in " + prettyTime(td) + " seconds")
 		self.original = len(self.parser.getProtocols())
 		self.check = self.original - len(protocols)
 		self.printSummary()
-		print("Benchmark written to " + config.output)
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark written to " + config.output)
 		
 	def printSummary(self):
 		#'Pretty Print' a summary based on our counters

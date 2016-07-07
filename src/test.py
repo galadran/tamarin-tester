@@ -35,13 +35,13 @@ class Tester:
 					if warned == 0:
 						warned = 1
 						print(term.yellow(term.bold("WARNING")) + " the following protocols are expected to timeout:")
-						print("Max proof time is: " + prettyTime(self.config.absolute))
+						print(term.bold(term.blue("INFORMATIONAL ")) + "Max proof time is: " + prettyTime(self.config.absolute))
 					print(term.yellow(term.bold("OVERTIME ")) + self.hashToPath[b.fileHash][len(self.config.protocols):] + " expected runtime: " + prettyTime(b.avgTime))
-		print("Expected Test runtime is " + prettyTime(totalTime))
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Expected Test runtime is " + prettyTime(totalTime))
 		if totalTime > 600:
-			print(term.bold(term.yellow("Grab a coffee!")))
+			print(term.bold(term.blue("INFORMATIONAL ")) + term.bold(term.yellow("Coffee break!")))
 		elif totalTime > 60:
-			print(term.bold(term.yellow("Distract your neighbour!")))
+			print(term.bold(term.blue("INFORMATIONAL ")) + term.bold(term.yellow("Check Facebook!")))
 	
 	def ignoreBench(self, b):
 		#Returns 1 if a benchmark should be ignored, 0 otherwise
@@ -80,7 +80,7 @@ class Tester:
 			self.missing+= 1
 			print(term.yellow(term.bold("UNMATCHED "))+ self.hashToPath[h][len(config.protocols):])
 		td = time.time() - start
-		print("Finished testing in " + prettyTime(td))
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished testing in " + prettyTime(td))
 		self.printSummary()
 
 	def printSummary(self):
