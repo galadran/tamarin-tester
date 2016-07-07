@@ -51,4 +51,5 @@ else:
 		print("Max Proof Time: " + str(config.absolute))
 		print("Max Check Time: " + str(config.checkTime))		
 	t = Tester(config)
+	t.estTestTime()
 	t.performTest()

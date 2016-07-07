@@ -24,7 +24,25 @@ class Tester:
 		self.missing = 0
 		self.nolemmas = 0
 		self.total = len(self.hashToPath.keys())
-
+	
+	def estTestTime(self):
+		totalTime = 0.0
+		warned = 0
+		for b in sorted(self.benchmarks, key=lambda bench: bench.avgTime):
+			if b.fileHash in self.hashToPath.keys():
+				totalTime += b.avgTime + (self.config.checkTime/2.0)
+				if b.avgTime > self.config.absolute:
+					if warned == 0:
+						warned = 1
+						print(term.yellow(term.bold("WARNING")) + " the following protocols are expected to timeout:")
+						print("Max proof time is: " + str(self.config.abosulte) + "seconds")
+					print(term.yellow(term.bold("OVERTIME ")) + self.hashToPath[b.fileHash][len(self.config.protocols):] + " expected runtime: " + str(b.avgTime) + seconds)
+		print("Expected Test runtime is " + str(totalTime) + " seconds")
+		if totalTime > 600:
+			print(term.bold(term.yellow("Grab a coffee!")))
+		elif totalTime > 60:
+			print(term.bold(term.yellow("Distract your neighbour!")))
+	
 	def ignoreBench(self, b):
 		#Returns 1 if a benchmark should be ignored, 0 otherwise
 		if "TIMEOUT" in b.lemmas and b.avgTime > config.absolute:
