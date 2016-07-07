@@ -3,7 +3,7 @@ from bench import *
 from blessings import Terminal
 from results import *
 from tqdm import tqdm
-
+import time
 term = Terminal()
 
 class Tester:
@@ -15,6 +15,8 @@ class Tester:
 		for p in self.parser.getProtocols():
 			self.hashToPath[hashlib.sha256(open(p,'rb').read()).hexdigest()] = p
 		self.flags, self.benchmarks = fileToResults(config.benchmark)
+		if len(self.flags) > 0:
+			print("Loaded flags from file: " + self.flags)
 		#Counters for results
 		self.failures = 0
 		self.passed = 0
@@ -36,7 +38,9 @@ class Tester:
 		#Protocols are removed from this set as they found in the benchmark
 		hashes = set(self.hashToPath.keys())
 		#For each benchmark, sorted from quickest to slowest
-		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),leave=True,desc="Testing against benchmarks"):
+		print("Testing...")
+		start = time.time()
+		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),leave=False,desc="Testing against benchmarks"):
 			if b.fileHash not in hashes or "TIMEOUT" in b.lemmas:
 				#We can ignore this benchmark as either we have no data or its not in our test input
 				continue
@@ -44,7 +48,7 @@ class Tester:
 			#NoLemmas means that the benchmark had nothing to prove and hence we cannot test here
 			if "NOLEMMAS" in b.lemmas:
 				self.nolemmas += 1
-				tqdm.write(term.bold(term.yellow("NOLEMMAS:")) + self.hashToPath[b.fileHash][len(config.protocols):])
+				tqdm.write(term.bold(term.yellow("NO LEMMAS ")) + self.hashToPath[b.fileHash][len(config.protocols):])
 				continue
 			#Here we check for well formedness
 			if (not b.diff and self.parser.validateProtocol(self.hashToPath[b.fileHash])) or (b.diff and self.parser.validDiffProtocol(self.hashToPath[b.fileHash])):
@@ -57,6 +61,8 @@ class Tester:
 		for h in hashes:
 			self.missing+= 1
 			print(term.yellow(term.bold("UNMATCHED "))+ self.hashToPath[h][len(config.protocols):])
+		td = time.time() - start
+		print("Finished testing in " + str(td) + " seconds")
 		self.printSummary()
 
 	def printSummary(self):
@@ -71,13 +77,15 @@ class Tester:
 			print(term.bold(term.yellow("MISSED: " + str(self.missing))))
 		if self.nolemmas != 0:
 			print(term.bold(term.yellow("NOLEMMAS: " + str(self.nolemmas))))
+		if self.warning != 0:
+			print(term.bold(term.yellow("WARNING: " + str(self.warning))))
 		if self.passed != 0:
 			print(term.bold(term.green("PASSED: " + str(self.passed))))
 		if self.failures > 0:
 			print("=====================================")
 			print("=============== " + term.red(term.bold("FAIL")) + " ================")
 			print("=====================================")
-		elif self.warning + self.missing > 0:
+		elif self.warning + self.missing + self.nolemmas > 0:
 			print("=====================================")
 			print("=============== " + term.yellow(term.bold("????")) + " ================")
 			print("=====================================")

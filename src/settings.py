@@ -6,8 +6,9 @@ class Settings:
 		self.tamarin = args.tamarin.name #Path to Tamarin Executable
 		self.contingency = args.contingency #Max multiples of benchmark time to wait for
 		self.repetitions = args.repetitions #How many samples to take for benchmark average
-		self.absolute = args.max #Absolute max amount of time to spend per protocol
+		self.absolute = args.maxproof #Absolute max amount of time to spend per protocol
 		self.verbose = args.verbose
+		self.checkTime = args.maxcheck
 		if args.output is not None:
 			self.output = args.output #Where to put the benchmark file
 		else:

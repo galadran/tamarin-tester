@@ -6,6 +6,7 @@ import os
 from blessings import Terminal
 from tqdm import tqdm
 import signal
+import time
 
 term = Terminal()
 
@@ -24,24 +25,27 @@ class Parser:
 		protocols = self.getProtocols()
 		validProtocols= list()
 		skips = ""
-		for p in tqdm(protocols,leave=True,desc="Well Formedness Checks"):
+		start = time.time()
+		for p in tqdm(protocols,leave=False,desc="Well Formedness Checks"):
 			vp = self.validateProtocol(p)
 			vdp = self.validDiffProtocol(p)
 			if vp !=1 and vdp != 1:
 				if vp + vdp == -2:
-					tqdm.write(term.yellow(term.bold("CHECK TIMEOUT ")) + p[len(path):])
+					tqdm.write(term.red(term.bold("CHECK TIMEOUT ")) + p[len(path):])
 				else:
-					tqdm.write(term.yellow(term.bold("MALFORMED ")) + p[len(path):])
+					tqdm.write(term.red(term.bold("MALFORMED ")) + p[len(path):])
 				continue
 			else:
 				validProtocols.append(p)
+		td = time.time() - start
+		print("Finished well-formedness checks in " + str(td) + " seconds")
 		return validProtocols
 		
 	def validateProtocol(self,path):
 		#Tests whether a given protocol is well formed
 		try:
 			with open(os.devnull, 'w') as devnull:
-				output = runWithTimeout(self.config.tamarin+" "+path,devnull,10)
+				output = runWithTimeout(self.config.tamarin+" "+path,devnull,self.config.checkTime)
 			if " All well-formedness checks were successful." in str(output):
 				return 1
 			elif "TIMEOUT" in str(output):

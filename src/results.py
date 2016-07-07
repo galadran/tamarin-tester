@@ -27,12 +27,12 @@ def compareResults(testOutput,bench):
 		benchSteps  = int(bench.lemmas[i][2])
 		#Check for a mistmatch on result (verified/falsfied)
 		if testOutput[i][1] != bench.lemmas[i][1]:
-			message += term.bold(term.red("\t INCORRECT: "))+ testOutput[i][0] + " tested as " + testOutput[i][1] + " but should be " + bench.lemmas[i][1] + "\n"
+			message += term.bold(term.red("\t INCORRECT: "))+ testOutput[i][0] + " was: " + bench.lemmas[i][1] + " now: " + testOutput[i][1] + "\n"
 		#Check for a change in step count
 		if testSteps > benchSteps:
-			message += term.bold(term.red("\t STEPSIZE: ")) + testOutput[i][0] + " step count INCREASED to " + str(testSteps) + " from benchmark at " + str(benchSteps) + "\n"
+			message += term.bold(term.yellow("\t STEPSIZE INC: ")) + testOutput[i][0] +" was: " + str(benchSteps) + " now: " + str(testSteps) + "\n"
 		if testSteps < benchSteps:
-			message += term.bold(term.blue("\t STEPSIZE: ")) + testOutput[i][0] + " step count DECREASED to " + str(testSteps) + " from benchmark at " + str(benchSteps) + "\n"
+			message += term.bold(term.yellow("\t STEPSIZE DEC: ")) + testOutput[i][0] +" was: " + str(benchSteps) + " now: " + str(testSteps) + "\n"
 	return message
 
 def outputToResults(output, path, diff,avgTime):
@@ -106,6 +106,7 @@ def resultToString(res):
 def fileToResults(f):
 	#Return a list of results objects.
 	benchmarks = list()
+	flags = ""
 	for line in f:
 		if line[1] == "#":
 			continue
