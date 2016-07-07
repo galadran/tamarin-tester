@@ -38,7 +38,7 @@ class Parser:
 			else:
 				validProtocols.append(p)
 		td = time.time() - start
-		print("Finished well-formedness checks in " + str(td) + " seconds")
+		print("Finished well-formedness checks in " + str(datetime.timedelta(seconds=td)))
 		return validProtocols
 		
 	def validateProtocol(self,path):

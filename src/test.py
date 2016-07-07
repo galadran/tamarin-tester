@@ -35,9 +35,9 @@ class Tester:
 					if warned == 0:
 						warned = 1
 						print(term.yellow(term.bold("WARNING")) + " the following protocols are expected to timeout:")
-						print("Max proof time is: " + str(self.config.abosulte) + "seconds")
-					print(term.yellow(term.bold("OVERTIME ")) + self.hashToPath[b.fileHash][len(self.config.protocols):] + " expected runtime: " + str(b.avgTime) + seconds)
-		print("Expected Test runtime is " + str(totalTime) + " seconds")
+						print("Max proof time is: " + str(datetime.timedelta(seconds=self.config.absolute)))
+					print(term.yellow(term.bold("OVERTIME ")) + self.hashToPath[b.fileHash][len(self.config.protocols):] + " expected runtime: " + str(datetime.timedelta(seconds=b.avgTime))
+		print("Expected Test runtime is " + str(datetime.timedelta(seconds=totalTime)))
 		if totalTime > 600:
 			print(term.bold(term.yellow("Grab a coffee!")))
 		elif totalTime > 60:
@@ -80,7 +80,7 @@ class Tester:
 			self.missing+= 1
 			print(term.yellow(term.bold("UNMATCHED "))+ self.hashToPath[h][len(config.protocols):])
 		td = time.time() - start
-		print("Finished testing in " + str(td) + " seconds")
+		print("Finished testing in " + str(datetime.timedelta(seconds=td)))
 		self.printSummary()
 
 	def printSummary(self):
@@ -126,7 +126,7 @@ class Tester:
 				#If we TIMEOUT here, the benchmark did not and hence this is a failure
 				if "TIMEOUT" in str(output):
 					self.failures+= 1
-					return term.bold(term.red("FAILED ")) + protocol_path[len(config.protocols):] + "\n" + term.bold(term.red("\t TIMEOUT ")) + "after " + str(allowedTime) + " seconds \n"
+					return term.bold(term.red("FAILED ")) + protocol_path[len(config.protocols):] + "\n" + term.bold(term.red("\t TIMEOUT ")) + "after " + str(datetime.timedelta(seconds=allowedTime)) + "\n"
 		except CalledProcessError:
 			#This indicates Tamarin raised an error. We output the file we had a problem with
 			print(term.red("ERROR") + " Testing " + protocol_path[len(config.protocols):])

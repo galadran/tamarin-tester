@@ -4,6 +4,7 @@ from results import *
 from blessings import Terminal
 from tqdm import tqdm
 import time
+import datetime
 
 term = Terminal()
 
@@ -59,7 +60,7 @@ class Bencher:
 		for p in tqdm(protocols,leave=False,desc="Benchmarking protocols"):
 			output.write(resultToString(self.benchProtocol(p))+"\n")
 		td = time.time() - start
-		print("Finished benchmarking in " + str(td) + " seconds")
+		print("Finished benchmarking in " + str(datetime.timedelta(seconds=td)) + " seconds")
 		self.original = len(self.parser.getProtocols())
 		self.check = self.original - len(protocols)
 		self.printSummary()
