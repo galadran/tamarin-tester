@@ -9,6 +9,8 @@ from settings import Settings
 
 des = "This program can be used to generate benchmark files for Tamarin which record correct results for a directory of protocols. Then it can be used to test an altered Tamarin compilation for correctness by comparing against these results. First navigate to a directory containing finished protocols and run Tamarin-Tester GOOD_TAMARIN_PATH. Then run Tamarin-Tester DEV_TAMARIN_PATH --b benchmark.txt and inspect the results."
 
+
+#TODO Make some of these exclusive / grouped!
 parser = argparse.ArgumentParser(description=des)
 parser.add_argument("-p","--protocols", metavar='DIR', help="directory containing test protocols", type=pathtype.PathType(exists=True, type='dir'),default=os.getcwd())
 parser.add_argument("-b","--benchmark", metavar='FILE', help="file containing benchmark results", type=argparse.FileType('r'))
