@@ -9,6 +9,66 @@ import signal
 
 term = Terminal()
 
+class Parser:
+	def __init__(self, config):
+		self.config = config
+		
+	def getProtocols(self):
+		#Returns a list of strings holding each spthy file
+		return glob.glob(self.config.protocols+"/**/*.spthy",recursive=True)
+		
+	def getValidProtocols(self):
+		#Given a list of protocols, check well-formedness of each
+		tamarin_command = self.config.tamarin
+		path = self.config.protocols
+		protocols = self.getProtocols()
+		validProtocols= list()
+		skips = ""
+		for p in tqdm(protocols,leave=True,desc="Well Formedness Checks"):
+			vp = self.validateProtocol(p)
+			vdp = self.validDiffProtocol(p)
+			if vp !=1 and vdp != 1:
+				if vp + vdp == -2:
+					skips += (term.yellow(term.bold("TIMEOUT ")) + p[len(path):] + " \n")
+				else:
+					skips += (term.yellow(term.bold("MALFORMED ")) + p[len(path):] + " \n")
+				continue
+			else:
+				validProtocols.append(p)
+		if len(validProtocols) == len(protocols):
+			print(term.bold(term.green(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
+		elif 0 < len(validProtocols) and len(validProtocols) < len(protocols):
+			print(term.bold(term.yellow(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
+			print(term.bold(term.yellow("The following failed and will not be benchmarked:")))
+			print(skips,end="")
+		elif len(validProtocols) == 0:
+			print(term.bold(term.red(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
+		return validProtocols
+		
+	def validateProtocol(self,path):
+		#Tests whether a given protocol is well formed
+		try:
+			with open(os.devnull, 'w') as devnull:
+				output = runWithTimeout(self.config.tamarin+" "+path,devnull,10)
+			if " All well-formedness checks were successful." in str(output):
+				return 1
+			elif "TIMEOUT" in str(output):
+				return -1
+			else:
+				return 0
+		except CalledProcessError:
+			return 0
+
+	def validDiffProtocol(self,path):
+		#Tests whether a given protocol is valid with a diff flag
+		return self.validateProtocol("--diff "+path)
+
+	def runAsDiff(self,path):
+		if self.validateProtocol(path) != 1 and self.validDiffProtocol(path) == 1:
+			return 1
+		else:
+			return 0		
+
 def getFlags(userFlags, diff):
 	#Build a flag string for Tamarin
 	flags = userFlags + " --prove "
@@ -27,37 +87,6 @@ def runWithTimeout(command,errOutput,time):
 				output = "TIMEOUT"
 		return output
 
-def getProtocols(path):
-	#Returns a list of strings holding each spthy file
-	return glob.glob(path+"/**/*.spthy",recursive=True)
-
-def getValidProtocols(tamarin_command,path):
-	#Given a list of protocols, check well-formedness of each
-	protocols = getProtocols(path)
-	validProtocols= list()
-	skips = ""
-	for p in tqdm(protocols,leave=True,desc="Well Formedness Checks"):
-		vp = validateProtocol(tamarin_command,p)
-		vdp = validDiffProtocol(tamarin_command,p)
-		if vp !=1 and vdp != 1:
-			if vp + vdp == -2:
-				skips += (term.yellow(term.bold("TIMEOUT ")) + p[len(path):] + " \n")
-			else:
-				skips += (term.yellow(term.bold("MALFORMED ")) + p[len(path):] + " \n")
-			continue
-		else:
-			validProtocols.append(p)
-	if len(validProtocols) == len(protocols):
-		print(term.bold(term.green(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
-	elif 0 < len(validProtocols) and len(validProtocols) < len(protocols):
-		print(term.bold(term.yellow(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
-		print(term.bold(term.yellow("The following failed and will not be benchmarked:")))
-		print(skips,end="")
-	elif len(validProtocols) == 0:
-		print(term.bold(term.red(str(len(validProtocols))+" out of "+str(len(protocols))+" protocols passed the well formedness checks.")))
-	return validProtocols
-
-
 def getName(path):
 	#Return the name of a protocol at a file
 	with open(path, 'r') as f:
@@ -68,26 +97,4 @@ def getName(path):
 		exit(1)
 		return("No defined name")
 
-def validateProtocol(tamarin_command,path):
-	#Tests whether a given protocol is well formed
-	try:
-		with open(os.devnull, 'w') as devnull:
-			output = runWithTimeout(tamarin_command+" "+path,devnull,10)
-		if " All well-formedness checks were successful." in str(output):
-			return 1
-		elif "TIMEOUT" in str(output):
-			return -1
-		else:
-			return 0
-	except CalledProcessError:
-		return 0
 
-def validDiffProtocol(tamarin_command,path):
-	#Tests whether a given protocol is valid with a diff flag
-	return validateProtocol(tamarin_command,"--diff "+path)
-
-def runAsDiff(tamarin_command,path):
-	if validateProtocol(tamarin_command,path) != 1 and validDiffProtocol(tamarin_command,path) == 1:
-		return 1
-	else:
-		return 0

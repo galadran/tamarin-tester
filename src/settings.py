@@ -7,6 +7,7 @@ class Settings:
 		self.contingency = args.contingency #Max multiples of benchmark time to wait for
 		self.repetitions = args.repetitions #How many samples to take for benchmark average
 		self.absolute = args.max #Absolute max amount of time to spend per protocol
+		self.verbose = args.verbose
 		if args.output is not None:
 			self.output = args.output #Where to put the benchmark file
 		else:
@@ -20,3 +21,4 @@ class Settings:
 			self.userFlags = args.flags #Any user defined flags to pass to Tamarin
 		else:
 			self.userFlags = ""
+		

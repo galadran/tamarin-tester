@@ -18,20 +18,32 @@ parser.add_argument("-r","--repetitions", metavar='3', help="Number of iteration
 parser.add_argument("-m","--max", metavar='30',help="Maximum time to run a proof for, defaults to 30 seconds",type=int,default=30)
 parser.add_argument("-f","--flags", metavar='FLAGS',help="User defined flags to pass to Tamarin for EVERY protocol",type=str)
 parser.add_argument("-o","--output", metavar='benchmark.txt',help="Location of output file, defaults to local directory",type=pathtype.PathType(exists=False, type='file'))
+parser.add_argument("-v","--verbose",action='store_true')
 
 args = parser.parse_args()
-
 term = Terminal()
 
-if len(getProtocols(args.protocols)) == 0:
-	print(term.red("ERROR ")+ "No protocols found")
-	exit(1)
+print("Tamarin Tester v0.2")
+config = Settings(args)
+if config.verbose:
+	print("Verbose Logging Enabled")
 
 if args.benchmark is None:
 	print("Mode: Create Benchmark")
-	b = Bencher(Settings(args))
+	print("Running Tamarin Executable: " + config.tamarin)	
+	print("Benchmark Output Location: " + config.output)
+	print("Benchmarking Protocols in: " + config.protocols)
+	print("User flags: " + config.userFlags)
+	print("Benchmark Repeititions: " + str(config.repetitions))
+	print("Benchmark Max Time: " + str(config.absolute))
+	b = Bencher(config)
 	b.performBenchmark()
 else:
 	print("Mode: Comparing to Benchmark")
-	t = Tester(Settings(args))
+	print("Testing Tamarin Executable: " + config.tamarin)	
+	print("Benchmark Input Location: " + config.benchmark)
+	print("Testing Protocols in: " + config.protocols)
+	print("Contingency Factor: " + str(config.contingency))
+	print("Testing Max Time: " + str(config.absolute))	
+	t = Tester(config)
 	t.performTest()

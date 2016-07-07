@@ -9,9 +9,10 @@ term = Terminal()
 class Tester:
 	def __init__(self, config):
 		self.config = config
+		self.parser = Parser(config)
 		#Load protocols and benchmarks
 		self.hashToPath = dict()
-		for p in getProtocols(config.protocols):
+		for p in self.parser.getProtocols():
 			self.hashToPath[hashlib.sha256(open(p,'rb').read()).hexdigest()] = p
 		self.flags, self.benchmarks = fileToResults(config.benchmark)
 		#Counters for results
@@ -46,7 +47,7 @@ class Tester:
 				tqdm.write(term.bold(term.yellow("NOLEMMAS:")) + self.hashToPath[b.fileHash][len(config.protocols):])
 				continue
 			#Here we check for well formedness
-			if (not b.diff and validateProtocol(config.tamarin,self.hashToPath[b.fileHash])) or (b.diff and validDiffProtocol(config.tamarin,self.hashToPath[b.fileHash])):
+			if (not b.diff and self.parser.validateProtocol(self.hashToPath[b.fileHash])) or (b.diff and self.parser.validDiffProtocol(self.hashToPath[b.fileHash])):
 					tqdm.write(self.testProtocol(self.hashToPath[b.fileHash],b),end="")
 			else:
 				#Both test and benchmark versions should agree on well formedness
@@ -66,26 +67,12 @@ class Tester:
 		print(term.bold("TOTAL: " + str(self.total)))
 		if self.failures != 0:
 			print(term.bold(term.red("FAILED: " + str(self.failures))))
-		else:
-			print(term.bold(term.green("FAILED: " + str(self.failures))))
-		if self.warning != 0:
-			print(term.bold(term.yellow("WARNED: " + str(self.warning))))
-		else:
-			print(term.bold(term.green("WARNED: " + str(self.warning))))
 		if self.missing != 0:
 			print(term.bold(term.yellow("MISSED: " + str(self.missing))))
-		else:
-			print(term.bold(term.green("MISSED: " + str(self.missing))))
 		if self.nolemmas != 0:
 			print(term.bold(term.yellow("NOLEMMAS: " + str(self.nolemmas))))
-		else:
-			print(term.bold(term.green("NOLEMMAS: " + str(self.nolemmas))))
-		if self.passed == self.total:
+		if self.passed != 0:
 			print(term.bold(term.green("PASSED: " + str(self.passed))))
-		elif self.passed > 0:
-			print(term.bold(term.yellow("PASSED: " + str(self.passed))))
-		else:
-			print(term.bold(term.red("PASSED: " + str(self.passed))))
 		if self.failures > 0:
 			print("=====================================")
 			print("=============== " + term.red(term.bold("FAIL")) + " ================")
