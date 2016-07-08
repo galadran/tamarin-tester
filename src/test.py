@@ -44,11 +44,12 @@ class Tester:
 						print(term.bold(term.blue("INFORMATIONAL ")) + "Max proof time is: " + prettyTime(self.config.absolute))
 						print(term.yellow(term.bold("WARNING")) + " the following protocols are expected to timeout:")
 					print(term.yellow(term.bold("OVERTIME ")) + self.hashToPath[b.fileHash][len(self.config.protocols):] + " " + prettyTime(b.avgTime))
-		if input(term.bold(term.magenta("QUERY "))+ "Filter out protocols expected to Timeout? [Y/n]") != "n":
-			orig = len(self.benchmarks)
-			self.filterOvertime()
-			print(term.bold(term.blue("INFORMATIONAL ")) + "Removed " + str(orig - len(self.benchmarks)) 
-			+ " overtime protocols")
+		if warned:
+			if input(term.bold(term.magenta("QUERY "))+ "Filter out protocols expected to Timeout? [Y/n]") != "n":
+				orig = len(self.benchmarks)
+				self.filterOvertime()
+				print(term.bold(term.blue("INFORMATIONAL ")) + "Removed " + str(orig - len(self.benchmarks)) 
+				+ " overtime protocols")
 			
 	def estTestTime(self):
 		totalTime = 0.0
