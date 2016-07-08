@@ -16,6 +16,17 @@ The tool automatically tests the quickest to verify protocols first in order to 
 <a href="https://asciinema.org/a/58t0e3v6cltr7jqajqijwzq8r?speed=7"><img src="https://asciinema.org/a/58t0e3v6cltr7jqajqijwzq8r.png" alt="Classic" width="400" border="0"></a>
 
 ###Quickstart
+####Installation
+The easiest method is to install Python3 and PyInstaller, git clone the directory and inside run 
+
+```
+pyinstaller src/tamarin-tester.py --onefile
+```
+
+which will produce a binary for your system inside dist/ 
+
+An already built binary for 64-bit Ubuntu 16.04 is on the Releases page, but has only been tested on one machine. 
+
 ####Building a benchmark
 Firstly, we need to produce a benchmark file from a known-good build of tamarin
 ```
@@ -77,6 +88,7 @@ Also see the global options above!
 | `-c`, `--contingency` |2| (integer) factor to multiply expected running time by|
 
 ###Protocol Tag Meanings
+
 | Tag | Meaning |
 | --- | --- |
 | PASSED | This protocol has identical lemma results and stepsizes under the new tamarin build as did under the benchmarked Tamarin build |
@@ -87,6 +99,7 @@ Also see the global options above!
 | FAILED | The new Tamarin build disagress with the benchmarked build for one or more lemmas |
 
 ###Reason Tag Meanings
+
 | Tag | Meaning |
 | --- | --- |
 | STEPSIZE INC | This lemma took more steps to prove with the new build |
@@ -95,6 +108,9 @@ Also see the global options above!
 | TIMEOUT | This protocol failed to terminate in the allotted time which is the contingency value (argument) c * avgRunTime (from the benchmark file) for the protocol file |
 
 ###Other tags
+
+| Tag | Meaning |
+| --- | --- |
 | INFORMATIONAL | A message for the user from tamarin-tester itself |
 | ERROR | A fatal error occurred and the program will terminate |
 
