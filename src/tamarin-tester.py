@@ -35,7 +35,7 @@ if args.benchmark and (args.maxproof is None or args.maxcheck is None):
 				
 config = Settings(args)
 
-print(term.bold(term.blue("INFORMATIONAL ")) + "Tamarin Tester v0.3")
+print(term.bold(term.blue("INFORMATIONAL ")) + "Tamarin Tester v0.9")
 if config.verbose:
 	print(term.bold(term.blue("INFORMATIONAL ")) + "Verbose Logging Enabled")
 
