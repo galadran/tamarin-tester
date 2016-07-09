@@ -10,21 +10,8 @@ class Settings:
 		self.removeOvertime = args.overtime
 		self.absolute = 0.0
 		self.checkTime = 0.0
-		if args.output is not None:
-			self.output = args.output #Where to put the benchmark file
-		else:
-			self.output = default=os.getcwd()+"/benchmark.res"
-		if args.benchmark is not None:
-			self.benchmark = args.benchmark #Where to read the benchmark file from
-			if args.maxproof is not None:
-				self.absolute = args.maxproof
-			if args.maxcheck is not None:
-				self.checkTime = args.maxcheck
-		else:
-			self.benchmark = ""
-			self.absolute = args.maxproof
-			self.checkTime = args.maxcheck
-
+		self.input = ""
+		self.output = ""
 		if args.flags is not None:
 			self.userFlags = args.flags #Any user defined flags to pass to Tamarin
 		else:

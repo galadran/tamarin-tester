@@ -17,7 +17,7 @@ class Tester:
 		self.hashToPath = dict()
 		for p in self.parser.getProtocols():
 			self.hashToPath[hashlib.sha256(open(p,'rb').read()).hexdigest()] = p
-		self.flags, self.benchmarks = fileToResults(config.benchmark)
+		self.flags, self.benchmarks = fileToResults(config.input)
 		
 		if config.absolute == 0.0:
 			maxTime = 0.0
