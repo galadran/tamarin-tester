@@ -110,8 +110,6 @@ def fileToResults(f):
 	for line in f:
 		if line[1] == "#":
 			continue
-		elif line[1] == "$":
-			flags = line[1:]
 		else:
 			benchmarks.append(stringToResults(line))
 	return (flags,benchmarks)

@@ -19,7 +19,7 @@ class Bencher:
 		#Print a worst case time estimate
 		count = len(self.parser.getProtocols())
 		runtime = count * (self.config.checkTime + self.config.absolute * self.config.repetitions)
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Maximum time to complete benchmark is " + prettyTime(runtime))
+		print(term.bold(term.blue("INFORMATIONAL ")) + "WORST CASE time to complete benchmark is " + prettyTime(runtime))
 		
 	def benchProtocol(self,protocol_path):
 		#Derive a benchmark for a particular protocol
@@ -58,8 +58,6 @@ class Bencher:
 			print(term.red("ERROR") + " No valid protocols!")
 			exit(1)
 		output = open(config.output,'w')
-		if len(config.userFlags) != 0:
-			output.write("$"+config.userFlags)
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmarking protocols...")
 		start = time.time()
 		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Benchmarking protocols"):

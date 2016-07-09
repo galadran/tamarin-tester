@@ -9,14 +9,41 @@ term = Terminal()
 class Tester:
 	def __init__(self, config):
 		self.config = config
+		
 		self.parser = Parser(config)
+		
+		
 		#Load protocols and benchmarks
 		self.hashToPath = dict()
 		for p in self.parser.getProtocols():
 			self.hashToPath[hashlib.sha256(open(p,'rb').read()).hexdigest()] = p
 		self.flags, self.benchmarks = fileToResults(config.benchmark)
-		if len(self.flags) > 0:
-			print("Loaded flags from file: " + self.flags)
+		
+		if config.absolute == 0.0:
+			maxTime = 0.0
+			for b in self.benchmarks:
+				maxTime = max(maxTime,b.avgTime)
+			config.absolute = maxTime
+			if self.config.verbose:
+				print(term.bold(term.blue("INFORMATIONAL ")) + "Loaded default max proof time from file " + prettyTime(config.checkTime))
+		elif self.config.verbose:
+			print(term.bold(term.blue("INFORMATIONAL ")) + "Max Proof Time (from argument): " + prettyTime(config.absolute))
+			
+		if config.checkTime == 0.0:
+			maxTime = 0.0
+			for b in self.benchmarks:
+				maxTime = max(maxTime,b.avgTime)
+			config.checkTime = min(maxTime,config.absolute)
+			if self.config.verbose:
+				print(term.bold(term.blue("INFORMATIONAL ")) + "Used default max check time: (min(prooftime, maxFileTime)) " + prettyTime(config.checkTime))
+		elif self.config.verbose:
+			print(str(self.config.checkTime))
+			print(term.bold(term.blue("INFORMATIONAL ")) + "Max Check Time (from argument): " + prettyTime(config.checkTime))
+			
+		#Reload the parser in case we made any changes
+		self.config = config
+		self.parser = Parser(config)
+		
 		#Counters for results
 		self.failures = 0
 		self.passed = 0
