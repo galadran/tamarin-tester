@@ -16,7 +16,10 @@ class Bencher:
 		self.parser = Parser(config)
 
 	def estBenchTime(self):
-		return 0.0
+		#Print a worst case time estimate
+		count = len(self.parser.getProtocols())
+		runtime = count * (self.config.checkTime + self.config.absolute * self.config.repetitions)
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Maximum time to complete benchmark is " + prettyTime(runtime))
 		
 	def benchProtocol(self,protocol_path):
 		#Derive a benchmark for a particular protocol

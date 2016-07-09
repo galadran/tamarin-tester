@@ -33,8 +33,8 @@ if config.verbose:
 	print(term.bold(term.blue("INFORMATIONAL ")) + "Verbose Logging Enabled")
 
 if args.benchmark is None:
+	print(term.bold(term.blue("INFORMATIONAL ")) + "Mode: Create Benchmark")
 	if config.verbose:
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Mode: Create Benchmark")
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Running Tamarin Executable: " + config.tamarin)	
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark Output Location: " + config.output)
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmarking Protocols in: " + config.protocols)
@@ -43,10 +43,11 @@ if args.benchmark is None:
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Max Check Time: " + str(config.checkTime))
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Max Proof Time: " + str(config.absolute))
 	b = Bencher(config)
+	b.estBenchTime()
 	b.performBenchmark()
 else:
+	print(term.bold(term.blue("INFORMATIONAL ")) + "Mode: Comparing to Benchmark")
 	if config.verbose:
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Mode: Comparing to Benchmark")
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Testing Tamarin Executable: " + config.tamarin)	
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark Input Location: " + str(config.benchmark))
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Testing Protocols in: " + config.protocols)

@@ -58,7 +58,7 @@ class Tester:
 		totalTime = 0.0
 		for b in sorted(self.benchmarks, key=lambda bench: bench.avgTime):
 			if b.fileHash in self.hashToPath.keys():
-				totalTime += min(b.avgTime,self.config.absolute) 
+				totalTime += min(b.avgTime*self.config.contingency,self.config.absolute) 
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Expected Test runtime is at least " + prettyTime(totalTime))
 	
 	def ignoreBench(self, b):
@@ -150,9 +150,9 @@ class Tester:
 				#If we TIMEOUT here, the benchmark did not and hence this is a failure
 				if "TIMEOUT" in str(output):
 					self.failures+= 1
-					ret = term.bold(term.red("FAILED ")) + protocol_path[len(config.protocols):] + "\n" + term.bold(term.red("\t TIMEOUT ")) + "after " + prettyTime(allowedTime) + "expected running time is " + prettyTime(bench.avgTime) +" \n"
+					ret = term.bold(term.red("FAILED ")) + protocol_path[len(config.protocols):] + "\n" + term.bold(term.red("\t TIMEOUT ")) + "after " + prettyTime(allowedTime) + " expected: " + prettyTime(bench.avgTime) +" \n"
 					if bench.avgTime > self.config.absolute:
-						return  ret + term.bold(term.blue("\t INFORMATIONAL ")) + "this protocol was expected to timeout"
+						return  ret + term.bold(term.blue("\t INFORMATIONAL ")) + "this protocol was expected to timeout \n"
 					else:
 						return ret
 		except CalledProcessError:
