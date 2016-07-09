@@ -26,13 +26,14 @@ class Bencher:
 		config = self.config
 		output = ""
 		diff =self.parser.runAsDiff(protocol_path)
+		protFlags = extractFlags(protocol_path)
 		totalTime = 0.0
 		for i in range(0, config.repetitions):
 			start = time.time()
 			try:
 				with open(os.devnull, 'w') as devnull:
 					#Run a benchmark for up to the maximum amount of time
-					output = str(runWithTimeout(config.tamarin+" "+getFlags(config.userFlags, diff)+" "+ protocol_path,devnull,config.absolute)).replace("\\n","\n")
+					output = str(runWithTimeout(config.tamarin+" "+getFlags(config.userFlags, diff,protFlags)+" "+ protocol_path,devnull,config.absolute)).replace("\\n","\n")
 					filtered = trimOutput(output)
 					if "TIMEOUT" in output:
 						tqdm.write(term.red(term.bold("BENCH TIMEOUT ")) + protocol_path[len(config.protocols):])
@@ -47,7 +48,7 @@ class Bencher:
 				exit(1)
 			end = time.time() - start
 			totalTime += end
-		return outputToResults(filtered,protocol_path,diff,totalTime/config.repetitions)
+		return outputToResults(filtered,protocol_path,diff,totalTime/config.repetitions,protFlags)
 
 	def performBenchmark(self):
 		#Perform a benchmark on all passed protocols

@@ -8,7 +8,6 @@ from tqdm import tqdm
 import signal
 import time
 import datetime
-
 term = Terminal()
 
 class Parser:
@@ -28,7 +27,7 @@ class Parser:
 		skips = ""
 		start = time.time()
 		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Well Formedness Checks"):
-			vp = self.validateProtocol(p)
+			vp = self.validNormProtocol(p)
 			vdp = self.validDiffProtocol(p)
 			if vp !=1 and vdp != 1:
 				if vp + vdp == -2:
@@ -42,11 +41,11 @@ class Parser:
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished well-formedness checks in " + prettyTime(td))
 		return validProtocols
 		
-	def validateProtocol(self,path):
+	def validProtocol(self,path,diff):
 		#Tests whether a given protocol is well formed
 		try:
 			with open(os.devnull, 'w') as devnull:
-				output = runWithTimeout(self.config.tamarin+" "+path,devnull,self.config.checkTime)
+				output = runWithTimeout(self.config.tamarin+ getFlags(self.config.userFlags,diff,extractFlags(path)) +path,devnull,self.config.checkTime)
 			if " All well-formedness checks were successful." in str(output):
 				return 1
 			elif "TIMEOUT" in str(output):
@@ -56,19 +55,22 @@ class Parser:
 		except CalledProcessError:
 			return 0
 
+	def validNormProtocol(self,path):
+		return self.validProtocol(path,0)
+	
 	def validDiffProtocol(self,path):
 		#Tests whether a given protocol is valid with a diff flag
-		return self.validateProtocol("--diff "+path)
+		return self.validProtocol(path,1)
 
 	def runAsDiff(self,path):
-		if self.validateProtocol(path) != 1 and self.validDiffProtocol(path) == 1:
+		if self.validNormProtocol(path) != 1 and self.validDiffProtocol(path) == 1:
 			return 1
 		else:
 			return 0		
 
-def getFlags(userFlags, diff):
+def getFlags(userFlags, diff,prot):
 	#Build a flag string for Tamarin
-	flags = userFlags + " --prove "
+	flags = userFlags + " " + prot + " --prove "
 	if diff:
 		flags += "--diff "
 	return flags
@@ -76,6 +78,13 @@ def getFlags(userFlags, diff):
 def prettyTime(s):
 	return  str(datetime.timedelta(seconds=s)).split('.', 1)[0]
 
+def extractFlags(path):
+	p = open(path,'r')
+	rec = "#tamarin-tester-flags:"
+	for line in p:
+		if line[0:len(rec)] == rec:
+			return line[len(rec):]
+	return ""
 	
 def runWithTimeout(command,errOutput,time):
 		#Run a command (INSECURE) with a specified timeout

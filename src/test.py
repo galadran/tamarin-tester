@@ -23,7 +23,7 @@ class Tester:
 			maxTime = 0.0
 			for b in self.benchmarks:
 				maxTime = max(maxTime,b.avgTime)
-			config.absolute = maxTime
+			config.absolute = maxTime*config.contingency
 			if self.config.verbose:
 				print(term.bold(term.blue("INFORMATIONAL ")) + "Loaded default max proof time from file " + prettyTime(config.checkTime))
 		elif self.config.verbose:
@@ -114,7 +114,7 @@ class Tester:
 				tqdm.write(term.bold(term.yellow("NO LEMMAS ")) + self.hashToPath[b.fileHash][len(config.protocols):])
 				continue
 			#Here we check for well formedness
-			if (not b.diff and self.parser.validateProtocol(self.hashToPath[b.fileHash])) or (b.diff and self.parser.validDiffProtocol(self.hashToPath[b.fileHash])):
+			if (not b.diff and self.parser.validNormProtocol(self.hashToPath[b.fileHash])) or (b.diff and self.parser.validDiffProtocol(self.hashToPath[b.fileHash])):
 					tqdm.write(self.testProtocol(self.hashToPath[b.fileHash],b),end="")
 			else:
 				#Both test and benchmark versions should agree on well formedness
@@ -154,7 +154,7 @@ class Tester:
 			print("=====================================")
 			print("=============== " + term.red(term.bold("FAIL")) + " ================")
 			print("=====================================")
-		elif self.warning + self.missing + self.nolemmas + self.filteredOvertime > 0:
+		elif self.warning + self.missing + self.nolemmas + self.removedOvertime > 0:
 			print("=====================================")
 			print("=============== " + term.yellow(term.bold("????")) + " ================")
 			print("=====================================")
@@ -173,7 +173,7 @@ class Tester:
 			#Ignore Tamarin Error messages (they will be unhelpful and misleading for us)
 			with open(os.devnull, 'w') as devnull:
 				#Launch the Tamarin instance
-				output = runWithTimeout(config.tamarin+" "+getFlags(self.flags,bench.diff)+" "+ protocol_path,devnull,allowedTime)
+				output = runWithTimeout(config.tamarin+" "+getFlags(self.flags,bench.diff,extractFlags(protocol_path))+" "+ protocol_path,devnull,allowedTime)
 				#If we TIMEOUT here, the benchmark did not and hence this is a failure
 				if "TIMEOUT" in str(output):
 					self.failures+= 1

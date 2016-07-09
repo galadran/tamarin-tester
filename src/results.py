@@ -7,11 +7,12 @@ from blessings import Terminal
 term = Terminal()
 
 class Result:
-	def __init__(self,fileHash,diff,lemmas,avgTime):
+	def __init__(self,fileHash,diff,lemmas,avgTime,flags):
 		self.fileHash = str(fileHash)
 		self.diff = int(diff)
 		self.lemmas = lemmas #need to assert this is a list of 3-tuples
 		self.avgTime = float(avgTime)
+		self.flags = str(flags)
 
 def compareResults(testOutput,bench):
 	#This function compares two Results objects returns a message describing any discrepancies
@@ -34,15 +35,15 @@ def compareResults(testOutput,bench):
 		if testSteps < benchSteps:
 			message += term.bold(term.yellow("\t STEPSIZE DEC: ")) + testOutput[i][0] +" was: " + str(benchSteps) + " now: " + str(testSteps) + "\n"
 	return message
-
-def outputToResults(output, path, diff,avgTime):
+	
+def outputToResults(output, path, diff,avgTime,flags):
 	#Create a results object out of TRIMMED Tamarin Output
 	fileHash = hashlib.sha256(open(path, 'rb').read()).hexdigest()
 	if "TIMEOUT" in output:
-		return Result(fileHash,diff,"TIMEOUT",0.0)
+		return Result(fileHash,diff,"TIMEOUT",0.0,flags)
 	elif len(output) == 0:
-		return Result(fileHash,diff,"NOLEMMAS",0.0)
-	return Result(fileHash,diff,extractLemmas(output),avgTime)
+		return Result(fileHash,diff,"NOLEMMAS",0.0,flags)
+	return Result(fileHash,diff,extractLemmas(output),avgTime,flags)
 
 def trimOutput(output):
 	#Records all important lines between Summary of Summary and end of output
@@ -94,14 +95,14 @@ def stringToResults(val):
 	#Return a new Results object from a stored string
 	row = val.split("|")
 	if row[2] == "TIMEOUT" or row[2] == "NOLEMMAS":
-		return Result(row[0],row[1],row[2],row[3])
-	return Result(row[0],row[1],ast.literal_eval(row[2]),row[3])
+		return Result(row[0],row[1],row[2],row[3],row[4])
+	return Result(row[0],row[1],ast.literal_eval(row[2]),row[3],row[4])
 
 def resultToString(res):
 	#Return a string representing a result object
 	if "TIMEOUT" in str(res.lemmas):
 		return ""
-	return res.fileHash + "|" + str(res.diff) + "|" +str(res.lemmas) + "|" + str(res.avgTime)
+	return res.fileHash + "|" + str(res.diff) + "|" +str(res.lemmas) + "|" + str(res.avgTime) + "|" + str(res.flags)
 	
 def fileToResults(f):
 	#Return a list of results objects.
