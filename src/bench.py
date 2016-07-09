@@ -66,7 +66,7 @@ class Bencher:
 		td = time.time() - start
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished benchmarking in " + prettyTime(td) + " seconds")
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark written to " + config.output)
-		self.original = len(self.parser.getProtocols())
+		self.original = len(self.parser.getUniqueProtocols())
 		self.check = self.original - len(protocols)
 		self.printSummary()
 

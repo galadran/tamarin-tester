@@ -15,8 +15,11 @@ class Tester:
 		
 		#Load protocols and benchmarks
 		self.hashToPath = dict()
-		for p in self.parser.getProtocols():
-			self.hashToPath[hashlib.sha256(open(p,'rb').read()).hexdigest()] = p
+		ps = self.parser.getUniqueProtocols()
+		for p in ps:
+			h = hashlib.sha256(open(p,'rb').read()).hexdigest()
+			self.hashToPath[h] = p
+			
 		self.flags, self.benchmarks = fileToResults(config.input)
 		
 		if config.absolute == 0.0:
@@ -85,7 +88,7 @@ class Tester:
 		totalTime = 0.0
 		for b in sorted(self.benchmarks, key=lambda bench: bench.avgTime):
 			if b.fileHash in self.hashToPath.keys():
-				totalTime += min(b.avgTime*self.config.contingency,self.config.absolute) 
+				totalTime += min(b.avgTime,self.config.absolute) 
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Expected Test runtime is at least " + prettyTime(totalTime))
 	
 	def ignoreBench(self, b):

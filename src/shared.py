@@ -8,11 +8,29 @@ from tqdm import tqdm
 import signal
 import time
 import datetime
+import hashlib
+
 term = Terminal()
 
 class Parser:
 	def __init__(self, config):
 		self.config = config
+		
+	def getUniqueProtocols(self):
+		hashes = set()
+		unique = list()
+		ps = self.getProtocols()
+		for p in ps:
+			h = hashlib.sha256(open(p,'rb').read()).hexdigest()
+			if h in hashes:
+				continue
+			else:
+				hashes.add(h)
+				unique.append(p)
+		duplicates = len(ps)-len(hashes)
+		if duplicates > 0:
+			print(term.bold(term.blue("INFORMATIONAL ")) + "Ignoring "+ str(duplicates) + " duplicate protocols (identical hashes)")
+		return unique
 		
 	def getProtocols(self):
 		#Returns a list of strings holding each spthy file
@@ -22,7 +40,7 @@ class Parser:
 		#Given a list of protocols, check well-formedness of each
 		tamarin_command = self.config.tamarin
 		path = self.config.protocols
-		protocols = self.getProtocols()
+		protocols = self.getUniqueProtocols()
 		validProtocols= list()
 		skips = ""
 		start = time.time()
