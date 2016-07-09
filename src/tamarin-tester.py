@@ -22,6 +22,7 @@ parser.add_argument("-f","--flags", metavar='FLAGS',help="User defined flags to 
 parser.add_argument("-o","--output", metavar='benchmark.txt',help="Location of output file, defaults to local directory",type=pathtype.PathType(exists=False, type='file'))
 parser.add_argument("-mc","--maxcheck", metavar='10', help="Maximum time to run well-formedness check for, defaults to 10 seconds",type=int,default=10)
 parser.add_argument("-v","--verbose",help="Enabled verbose logging",action='store_true')
+parser.add_argument("-over", "--overtime", help="Filter out protocols which are expected to timeout",action='store_true')
 
 args = parser.parse_args()
 term = Terminal()
@@ -53,6 +54,7 @@ else:
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Max Proof Time: " + str(config.absolute))
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Max Check Time: " + str(config.checkTime))		
 	t = Tester(config)
-	t.checkOvertime()
+	if t.checkOvertime() and config.removeOvertime:
+			t.filterOvertime()
 	t.estTestTime()
 	t.performTest()

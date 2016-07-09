@@ -27,7 +27,7 @@ class Parser:
 		validProtocols= list()
 		skips = ""
 		start = time.time()
-		for p in tqdm(protocols,leave=False,desc="Well Formedness Checks"):
+		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Well Formedness Checks"):
 			vp = self.validateProtocol(p)
 			vdp = self.validDiffProtocol(p)
 			if vp !=1 and vdp != 1:

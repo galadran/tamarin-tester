@@ -9,6 +9,7 @@ class Settings:
 		self.absolute = args.maxproof #Absolute max amount of time to spend per protocol
 		self.verbose = args.verbose
 		self.checkTime = args.maxcheck
+		self.removeOvertime = args.overtime
 		if args.output is not None:
 			self.output = args.output #Where to put the benchmark file
 		else:

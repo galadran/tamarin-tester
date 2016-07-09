@@ -15,6 +15,9 @@ class Bencher:
 		self.nolemmas = 0
 		self.parser = Parser(config)
 
+	def estBenchTime(self):
+		return 0.0
+		
 	def benchProtocol(self,protocol_path):
 		#Derive a benchmark for a particular protocol
 		config = self.config
@@ -56,7 +59,7 @@ class Bencher:
 			output.write("$"+config.userFlags)
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmarking protocols...")
 		start = time.time()
-		for p in tqdm(protocols,leave=False,desc="Benchmarking protocols"):
+		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Benchmarking protocols"):
 			output.write(resultToString(self.benchProtocol(p))+"\n")
 		td = time.time() - start
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished benchmarking in " + prettyTime(td) + " seconds")

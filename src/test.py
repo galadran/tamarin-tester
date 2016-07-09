@@ -23,44 +23,43 @@ class Tester:
 		self.warning = 0
 		self.missing = 0
 		self.nolemmas = 0
-		self.filteredOvertime = 0
 		self.total = len(self.hashToPath.keys())
+		self.removedOvertime = 0
+		self.wereOvertime = list()
 	
 	def filterOvertime(self):
-		self.filteredOvertime =1
+		orig = len(self.benchmarks)
 		filtered = list()
 		for b in self.benchmarks:
 			if b.avgTime <= self.config.absolute:
 				filtered.append(b)
+			else:
+				self.wereOvertime.append(b.fileHash)
 		self.benchmarks = filtered
+		self.removedOvertime = len(self.wereOvertime)
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Removed " + str(self.removedOvertime) 
+				+ " overtime protocols")		
 	
 	def checkOvertime(self):
-		warned = 0
+		goingOvertime = 0
+		maxSeen = 0.0
 		for b in sorted(self.benchmarks, key=lambda bench: bench.avgTime):
-			if b.fileHash in self.hashToPath.keys():
-				if b.avgTime > self.config.absolute:
-					if warned == 0:
-						warned = 1
-						print(term.bold(term.blue("INFORMATIONAL ")) + "Max proof time is: " + prettyTime(self.config.absolute))
-						print(term.yellow(term.bold("WARNING")) + " the following protocols are expected to timeout:")
-					print(term.yellow(term.bold("OVERTIME ")) + self.hashToPath[b.fileHash][len(self.config.protocols):] + " " + prettyTime(b.avgTime))
-		if warned:
-			if input(term.bold(term.magenta("QUERY "))+ "Filter out protocols expected to Timeout? [Y/n]") != "n":
-				orig = len(self.benchmarks)
-				self.filterOvertime()
-				print(term.bold(term.blue("INFORMATIONAL ")) + "Removed " + str(orig - len(self.benchmarks)) 
-				+ " overtime protocols")
+			if b.fileHash in self.hashToPath.keys() and b.avgTime > self.config.absolute:
+					goingOvertime += 1 
+					maxSeen = max(maxSeen, b.avgTime)
+		if goingOvertime > 0:
+			if not self.config.removeOvertime:
+				print(term.bold(term.yellow("WARNING ")) + str(goingOvertime) + " protocol(s) are not expected to terminate proving because the max proof time " + prettyTime(self.config.absolute) + " is less than their expected run time (Highest seen: " + prettyTime(maxSeen) + ")")
+			return 1
+		else:
+			return 0
 			
 	def estTestTime(self):
 		totalTime = 0.0
 		for b in sorted(self.benchmarks, key=lambda bench: bench.avgTime):
 			if b.fileHash in self.hashToPath.keys():
-				totalTime += min(b.avgTime,self.config.absolute) + (self.config.checkTime/2.0)	
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Expected Test runtime is " + prettyTime(totalTime))
-		if totalTime > 600:
-			print(term.bold(term.blue("INFORMATIONAL ")) + term.bold(term.yellow("Coffee break!")))
-		elif totalTime > 60:
-			print(term.bold(term.blue("INFORMATIONAL ")) + term.bold(term.yellow("Browse Reddit!")))
+				totalTime += min(b.avgTime,self.config.absolute) 
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Expected Test runtime is at least " + prettyTime(totalTime))
 	
 	def ignoreBench(self, b):
 		#Returns 1 if a benchmark should be ignored, 0 otherwise
@@ -77,7 +76,7 @@ class Tester:
 		#For each benchmark, sorted from quickest to slowest
 		print(term.bold(term.blue("INFORMATIONAL ")) +"Testing protocols...")
 		start = time.time()
-		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),leave=False,desc="Testing against benchmarks"):
+		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),smoothing=1.0,leave=False,desc="Testing against benchmarks"):
 			if b.fileHash not in hashes or "TIMEOUT" in b.lemmas:
 				#We can ignore this benchmark as either we have no data or its not in our test input
 				continue
@@ -96,8 +95,11 @@ class Tester:
 				self.failures+= 1
 		#Print out protocols we could not find a benchmark for
 		for h in hashes:
-			self.missing+= 1
-			print(term.yellow(term.bold("UNMATCHED "))+ self.hashToPath[h][len(config.protocols):])
+			if h in self.wereOvertime:
+				print(term.yellow(term.bold("OVERTIME "))+ self.hashToPath[h][len(config.protocols):])
+			else:
+				self.missing+= 1
+				print(term.yellow(term.bold("MISSING "))+ self.hashToPath[h][len(config.protocols):])
 		td = time.time() - start
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished testing in " + prettyTime(td))
 		self.printSummary()
@@ -113,15 +115,14 @@ class Tester:
 			print(term.bold(term.red("FAILED: " + str(self.failures))))
 		if self.missing != 0:
 			print(term.bold(term.yellow("MISSED: " + str(self.missing))))
+		if self.removedOvertime != 0:
+			print(term.bold(term.yellow("OVERTIME: " + str(self.removedOvertime))))			
 		if self.nolemmas != 0:
 			print(term.bold(term.yellow("NOLEMMAS: " + str(self.nolemmas))))
 		if self.warning != 0:
 			print(term.bold(term.yellow("WARNING: " + str(self.warning))))
 		if self.passed != 0:
 			print(term.bold(term.green("PASSED: " + str(self.passed))))
-		if self.filteredOvertime:
-			print()
-			print(term.bold(term.yellow("REMINDER: ")) + "Protocols expected to timeout were removed!")
 		if self.failures > 0:
 			print("=====================================")
 			print("=============== " + term.red(term.bold("FAIL")) + " ================")
@@ -149,7 +150,11 @@ class Tester:
 				#If we TIMEOUT here, the benchmark did not and hence this is a failure
 				if "TIMEOUT" in str(output):
 					self.failures+= 1
-					return term.bold(term.red("FAILED ")) + protocol_path[len(config.protocols):] + "\n" + term.bold(term.red("\t TIMEOUT ")) + "after " + prettyTime(allowedTime) + "\n"
+					ret = term.bold(term.red("FAILED ")) + protocol_path[len(config.protocols):] + "\n" + term.bold(term.red("\t TIMEOUT ")) + "after " + prettyTime(allowedTime) + "expected running time is " + prettyTime(bench.avgTime) +" \n"
+					if bench.avgTime > self.config.absolute:
+						return  ret + term.bold(term.blue("\t INFORMATIONAL ")) + "this protocol was expected to timeout"
+					else:
+						return ret
 		except CalledProcessError:
 			#This indicates Tamarin raised an error. We output the file we had a problem with
 			print(term.red("ERROR") + " Testing " + protocol_path[len(config.protocols):])
