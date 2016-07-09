@@ -2,9 +2,7 @@ import ast
 import hashlib
 import sys
 import traceback
-from blessings import Terminal
-
-term = Terminal()
+from constants import * 
 
 class Result:
 	def __init__(self,fileHash,diff,lemmas,avgTime,flags):
@@ -22,18 +20,18 @@ def compareResults(testOutput,bench):
 		if testOutput[i][0] != bench.lemmas[i][0]:
 			#This should literally never happen, but a sanity check never hurt the sane
 			print(testOutput[i][0] + " " + str(bench.lemmas[i][0]))
-			print(term.red("ERROR")+ " Lemma order mismatch")
+			print(ERROR+ " Lemma order mismatch")
 			exit(1)
 		testSteps = int(testOutput[i][2])
 		benchSteps  = int(bench.lemmas[i][2])
 		#Check for a mistmatch on result (verified/falsfied)
 		if testOutput[i][1] != bench.lemmas[i][1]:
-			message += term.bold(term.red("\t INCORRECT: "))+ testOutput[i][0] + " was: " + bench.lemmas[i][1] + " now: " + testOutput[i][1] + "\n"
+			message += INCORRECT + testOutput[i][0] + " was: " + bench.lemmas[i][1] + " now: " + testOutput[i][1] + "\n"
 		#Check for a change in step count
 		if testSteps > benchSteps:
-			message += term.bold(term.yellow("\t STEPSIZE INC: ")) + testOutput[i][0] +" was: " + str(benchSteps) + " now: " + str(testSteps) + "\n"
+			message += STEPSIZE_INC + testOutput[i][0] +" was: " + str(benchSteps) + " now: " + str(testSteps) + "\n"
 		if testSteps < benchSteps:
-			message += term.bold(term.yellow("\t STEPSIZE DEC: ")) + testOutput[i][0] +" was: " + str(benchSteps) + " now: " + str(testSteps) + "\n"
+			message += STEPSIZE_DEC + testOutput[i][0] +" was: " + str(benchSteps) + " now: " + str(testSteps) + "\n"
 	return message
 	
 def outputToResults(output, path, diff,avgTime,flags):
@@ -86,7 +84,7 @@ def extractLemmas(filtered):
 				lemmas.append((name,state,steps))
 		return lemmas
 	except:
-		print(term.red("ERROR") + " failed to parse Tamarin output")
+		print(ERROR + " failed to parse Tamarin output")
 		print(filtered)
 		exit(1)
 		return "NONE"

@@ -9,8 +9,7 @@ import signal
 import time
 import datetime
 import hashlib
-
-term = Terminal()
+from constants import * 
 
 class Parser:
 	def __init__(self, config):
@@ -29,7 +28,7 @@ class Parser:
 				unique.append(p)
 		duplicates = len(ps)-len(hashes)
 		if duplicates > 0:
-			print(term.bold(term.blue("INFORMATIONAL ")) + "Ignoring "+ str(duplicates) + " duplicate protocols (identical hashes)")
+			print(INFORMATIONAL + "Ignoring "+ str(duplicates) + " duplicate protocols (identical hashes)")
 		return unique
 		
 	def getProtocols(self):
@@ -48,14 +47,14 @@ class Parser:
 			vdp = self.validDiffProtocol(p)
 			if vp !=1 and vdp != 1:
 				if vp + vdp < 0:
-					tqdm.write(term.red(term.bold("CHECK TIMEOUT ")) + p[len(path):])
+					tqdm.write(CHECK_TIMEOUT + p[len(path):])
 				else:
-					tqdm.write(term.red(term.bold("MALFORMED ")) + p[len(path):])
+					tqdm.write(MALFORMED + p[len(path):])
 				continue
 			else:
 				validProtocols.append(p)
 		td = time.time() - start
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished well-formedness checks in " + prettyTime(td))
+		print(INFORMATIONAL + "Finished well-formedness checks in " + prettyTime(td))
 		return validProtocols
 		
 	def validProtocol(self,path,diff):

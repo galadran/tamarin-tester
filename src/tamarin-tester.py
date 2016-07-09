@@ -1,14 +1,12 @@
 from shared import *
 from bench import *
 from test import *
+from constants import * 
 import argparse
 import pathtype
 import os
-from system import exit 
-from blessings import Terminal
+from sys import exit 
 from settings import Settings
-
-term = Terminal()
 
 des = "This program can be used to generate benchmark files for Tamarin which record correct results for a directory of protocols. Then it can be used to test an altered Tamarin compilation for correctness by comparing against these results. First navigate to a directory containing finished protocols and run Tamarin-Tester GOOD_TAMARIN_PATH. Then run Tamarin-Tester DEV_TAMARIN_PATH --b benchmark.txt and inspect the results."
 
@@ -31,35 +29,35 @@ parser.add_argument("-over", "--overtime", help="Filter out protocols which are 
 args = parser.parse_args()
 
 if args.benchmark and (args.maxproof is None or args.maxcheck is None):
-				print(term.bold(term.red("ERROR ")) + "In benchmark mode you MUST specify how long to attempt checks and proofs for!")
+				print(ERROR + "In benchmark mode you MUST specify how long to attempt checks and proofs for!")
 				exit(1)
 				
 config = Settings(args)
 
-print(term.bold(term.blue("INFORMATIONAL ")) + "Tamarin Tester v0.9")
+print(INFORMATIONAL + VERSION)
 if config.verbose:
-	print(term.bold(term.blue("INFORMATIONAL ")) + "Verbose Logging Enabled")
+	print(INFORMATIONAL + "Verbose Logging Enabled")
 
 if args.benchmark:
-	print(term.bold(term.blue("INFORMATIONAL ")) + "Mode: Create Benchmark")
+	print(INFORMATIONAL + "Mode: Create Benchmark")
 	if args.output is not None:
 		config.output = args.output 
 	else:
 		config.output = config.protocols+"/benchmark.res"
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Using default output location " + config.output)
+		print(INFORMATIONAL + "Using default output location " + config.output)
 	if os.path.isfile(config.output):
-		print(term.bold(term.red("ERROR ")) + "file already exists at " + config.output)
+		print(ERROR + "file already exists at " + config.output)
 		exit(1)
 	config.absolute = args.maxproof
 	config.checkTime = args.maxcheck
 	if config.verbose:
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Running Tamarin Executable: " + config.tamarin)	
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark Output Location: " + config.output)
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmarking Protocols in: " + config.protocols)
-		print(term.bold(term.blue("INFORMATIONAL ")) + "User flags: " + config.userFlags)
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark Repetitions: " + str(config.repetitions))
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Max Check Time: " + str(config.checkTime))
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Max Proof Time: " + str(config.absolute))
+		print(INFORMATIONAL + "Running Tamarin Executable: " + config.tamarin)	
+		print(INFORMATIONAL + "Benchmark Output Location: " + config.output)
+		print(INFORMATIONAL + "Benchmarking Protocols in: " + config.protocols)
+		print(INFORMATIONAL + "User flags: " + config.userFlags)
+		print(INFORMATIONAL + "Benchmark Repetitions: " + str(config.repetitions))
+		print(INFORMATIONAL + "Max Check Time: " + str(config.checkTime))
+		print(INFORMATIONAL + "Max Proof Time: " + str(config.absolute))
 	b = Bencher(config)
 	b.estBenchTime()
 	b.performBenchmark()
@@ -68,21 +66,21 @@ else:
 		config.input = args.input #Where to read the benchmark file from
 	else:
 		config.input = config.protocols+"/benchmark.res"
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Using default input location " + config.input)
+		print(INFORMATIONAL + "Using default input location " + config.input)
 	if not os.path.isfile(config.input):
-		print(term.bold(term.red("ERROR ")) + "could not find benchmark file " + config.output)
+		print(ERROR + "could not find benchmark file " + config.output)
 		exit(1)
 	if args.maxproof is not None:
 		config.absolute = args.maxproof
 	if args.maxcheck is not None:
 		config.checkTime = args.maxcheck
-	print(term.bold(term.blue("INFORMATIONAL ")) + "Mode: Testing")
+	print(INFORMATIONAL + "Mode: Testing")
 	if config.verbose:
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Testing Tamarin Executable: " + config.tamarin)	
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark Input Location: " + str(config.input))
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Testing Protocols in: " + config.protocols)
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Contingency Factor: " + str(config.contingency))
-		print(term.bold(term.blue("INFORMATIONAL ")) + "User flags: " + config.userFlags)
+		print(INFORMATIONAL + "Testing Tamarin Executable: " + config.tamarin)	
+		print(INFORMATIONAL + "Benchmark Input Location: " + str(config.input))
+		print(INFORMATIONAL + "Testing Protocols in: " + config.protocols)
+		print(INFORMATIONAL + "Contingency Factor: " + str(config.contingency))
+		print(INFORMATIONAL + "User flags: " + config.userFlags)
 	t = Tester(config)
 	if t.checkOvertime() and config.removeOvertime:
 			t.filterOvertime()
