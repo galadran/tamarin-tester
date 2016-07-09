@@ -1,4 +1,4 @@
-from constants import * 
+from shared import * 
 from results import Result
 import glob
 import re
@@ -8,9 +8,8 @@ import os
 from tqdm import tqdm
 import signal
 import time
-import datetime
-import hashlib
-from constants import * 
+
+
 
 class Tamarin:
 	def __init__(self,config):
@@ -21,7 +20,12 @@ class Tamarin:
 		try:
 			with open(os.devnull, 'w') as devnull:
 				protFlags = extractFlags(protocol_path)
-				return outputToResults(trimOutput(str(runWithTimeout(self.path+" "+getFlags(self.flags,1, diff,protFlags)+" "+ protocol_path,devnull,timeout)).replace("\\n","\n")),protocol_path,diff,0.0,protFlags)
+				allFlags = getFlags(self.flags,1, diff,protFlags)
+				rawOutput = runWithTimeout(self.path+" "+allFlags+" "+ protocol_path,devnull,timeout)
+				strOutput = str(rawOutput).replace("\\n","\n")
+				if "TIMEOUT" not in strOutput: 
+					strOutput = trimOutput(strOutput)
+				return outputToResults(strOutput,protocol_path,diff,0.0,protFlags)
 		except CalledProcessError:
 					print(ERROR + " benchmarking " + protocol_path[len(paths):])
 					exit(1)

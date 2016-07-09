@@ -6,7 +6,6 @@ from sys import exit
 #Internal Imports
 from test import Tester 
 from bench import Bencher
-from interface import Tamarin
 from shared import *
 
 parser = ArgumentParser(description=DESCRIPTION)
@@ -14,7 +13,7 @@ parser.add_argument("-p","--protocols", metavar='DIR', help="directory containin
 parser.add_argument("-b","--benchmark", help="run a benchmark", action='store_true')
 parser.add_argument("tamarin", metavar='FILE', help="path to tamarin executable", type=FileType('r'))
 parser.add_argument("-c","--contingency", metavar='2', help="integer multiples of avg time to test for, defaults to 2", type=int,default=2)
-parser.add_argument("-r","--repetitions", metavar='3', help="Number of iterations to benchmark for, defaults to 3",type=int,default = 3)
+parser.add_argument("-r","--repetitions", metavar='1', help="Number of iterations to benchmark for, defaults to 1",type=int,default = 1)
 parser.add_argument("-mp","--maxproof", metavar='INT',help="Maximum time to run a proof for",type=float)
 parser.add_argument("-f","--flags", metavar='FLAGS',help="User defined flags to pass to Tamarin for EVERY protocol",type=str)
 parser.add_argument("-o","--output", metavar='benchmark.res',help="Location of output file, defaults to looking in protocol directory",type=PathType(exists=False, type='file'))

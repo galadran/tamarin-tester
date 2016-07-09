@@ -1,9 +1,7 @@
 from shared import *
-from results import *
-from constants import * 
-from inteface import Tamarin
+from results import resultToString
+from interface import Tamarin
 
-from glob import glob
 from tqdm import tqdm
 import time
 
@@ -13,7 +11,6 @@ class Bencher:
 		self.failed = 0
 		self.check = 0
 		self.nolemmas = 0
-		self.parser = Parser(config)
 		self.tamarin = Tamarin(config)
 		
 	def estBenchTime(self):
@@ -26,38 +23,38 @@ class Bencher:
 		#Given a list of protocols, check well-formedness of each
 		validProtocols= list()
 		start = time.time()
-		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Well Formedness Checks"):
+		for p in tqdm(getUniqueProtocols(self.config.protocols),leave=False,smoothing=0.0,desc="Well Formedness Checks"):
 			vp = validNormProtocol(self.tamarin,p,self.config.checkTime)
 			vdp = validDiffProtocol(self.tamarin,p,self.config.checkTime)
 			if vp !=1 and vdp != 1:
 				if vp + vdp < 0:
-					tqdm.write(term.red(term.bold("CHECK TIMEOUT ")) + p[len(path):])
+					tqdm.write(CHECK_TIMEOUT + p[len(path):])
 				else:
-					tqdm.write(term.red(term.bold("MALFORMED ")) + p[len(path):])
+					tqdm.write(MALFORMED + p[len(path):])
 				continue
 			else:
 				validProtocols.append(p)
 		td = time.time() - start
-		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished well-formedness checks in " + prettyTime(td))
+		print(INFORMATIONAL + "Finished well-formedness checks in " + prettyTime(td))
 		return validProtocols
 		
 	def benchProtocol(self,protocol_path):
 		#Derive a benchmark for a particular protocol
 		config = self.config
 		output = ""
-		diff = runAsDiff(self.tamarin,protocol_path)
+		diff = runAsDiff(self.tamarin,protocol_path,self.config.checkTime)
 		totalTime = 0.0
 		for i in range(0, config.repetitions):
 			start = time.time()
 			output = self.tamarin.getResults(protocol_path,diff,config.absolute)
-				if "TIMEOUT" in output.lemmas:
-					tqdm.write(BENCH_TIMEOUT + protocol_path[len(config.protocols):])
-					self.failed +=1
-					break
-				elif "NOLEMMAS" in output.results:
-					tqdm.write(NO_LEMMAS + protocol_path[len(config.protocols):])
-					self.nolemmas +=1
-					break #No need to repeat if there is nothing to test
+			if "TIMEOUT" in output.lemmas:
+				tqdm.write(BENCH_TIMEOUT + protocol_path[len(config.protocols):])
+				self.failed +=1
+				break
+			elif "NOLEMMAS" in output.lemmas:
+				tqdm.write(NO_LEMMAS + protocol_path[len(config.protocols):])
+				self.nolemmas +=1
+				break #No need to repeat if there is nothing to test
 			end = time.time() - start
 			totalTime += end
 		output.avgTime = totalTime/config.repetitions
@@ -69,7 +66,7 @@ class Bencher:
 		print(INFORMATIONAL+"Validating protocols...")
 		files = getUniqueProtocols(self.config.protocols)
 		self.original = len(files)
-		protocols = self.getValidProtocols(files)
+		protocols = self.getValidProtocols()
 		if len(protocols) == 0:
 			print(ERROR + " No valid protocols!")
 			exit(1)

@@ -1,6 +1,6 @@
 from shared import *
-from bench import *
-from results import *
+from results import fileToResults,compareResults
+
 from tqdm import tqdm
 import time
 from interface import Tamarin
@@ -8,8 +8,7 @@ from interface import Tamarin
 class Tester:
 	def __init__(self, config):
 		self.config = config
-		
-		self.parser = Parser(config)
+	
 		self.tamarin = Tamarin(config)
 		
 		#Load protocols and benchmarks
@@ -44,7 +43,6 @@ class Tester:
 			
 		#Reload the parser in case we made any changes
 		self.config = config
-		self.parser = Parser(config)
 		
 		#Counters for results
 		self.failures = 0
@@ -116,7 +114,7 @@ class Tester:
 				tqdm.write(NOLEMMAS + self.hashToPath[b.fileHash][len(config.protocols):])
 				continue
 			#Here we check for well formedness
-			if (not b.diff and validNormProtocol(self.tamarin,self.hashToPath[b.fileHash]),self.config.checkTime) or (b.diff and validDiffProtocol(self.tamarin,self.hashToPath[b.fileHash],self.config.checkTime)):
+			if (not b.diff and validNormProtocol(self.tamarin,self.hashToPath[b.fileHash],self.config.checkTime)) or (b.diff and validDiffProtocol(self.tamarin,self.hashToPath[b.fileHash],self.config.checkTime)):
 					tqdm.write(self.testProtocol(self.hashToPath[b.fileHash],b),end="")
 			else:
 				#Both test and benchmark versions should agree on well formedness
