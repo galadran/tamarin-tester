@@ -36,11 +36,10 @@ class Parser:
 		#Returns a list of strings holding each spthy file
 		return glob.glob(self.config.protocols+"/**/*.spthy",recursive=True)
 		
-	def getValidProtocols(self):
+	def getValidProtocols(self, protocols):
 		#Given a list of protocols, check well-formedness of each
 		tamarin_command = self.config.tamarin
 		path = self.config.protocols
-		protocols = self.getUniqueProtocols()
 		validProtocols= list()
 		skips = ""
 		start = time.time()

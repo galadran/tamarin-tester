@@ -29,7 +29,7 @@ parser.add_argument("-over", "--overtime", help="Filter out protocols which are 
 
 args = parser.parse_args()
 
-if args.benchmark is None and (args.maxproof is None or args.maxcheck is None):
+if args.benchmark and (args.maxproof is None or args.maxcheck is None):
 				print(term.bold(term.red("ERROR ")) + "In benchmark mode you MUST specify how long to attempt checks and proofs for!")
 				exit(1)
 				
@@ -69,7 +69,7 @@ else:
 		config.input = config.protocols+"/benchmark.res"
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Using default input location " + config.input)
 	if not os.path.isfile(config.input):
-		print(term.bold(term.red("ERROR ")) + "could not find config file " + config.output)
+		print(term.bold(term.red("ERROR ")) + "could not find benchmark file " + config.output)
 		exit(1)
 	if args.maxproof is not None:
 		config.absolute = args.maxproof

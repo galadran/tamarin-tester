@@ -54,7 +54,9 @@ class Bencher:
 		#Perform a benchmark on all passed protocols
 		config = self.config
 		print(term.bold(term.blue("INFORMATIONAL "))+"Validating protocols...")
-		protocols = self.parser.getValidProtocols()
+		files = self.parser.getUniqueProtocols()
+		self.original = len(files)
+		protocols = self.parser.getValidProtocols(files)
 		if len(protocols) == 0:
 			print(term.red("ERROR") + " No valid protocols!")
 			exit(1)
@@ -66,7 +68,6 @@ class Bencher:
 		td = time.time() - start
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished benchmarking in " + prettyTime(td) + " seconds")
 		print(term.bold(term.blue("INFORMATIONAL ")) + "Benchmark written to " + config.output)
-		self.original = len(self.parser.getUniqueProtocols())
 		self.check = self.original - len(protocols)
 		self.printSummary()
 

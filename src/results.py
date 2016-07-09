@@ -110,7 +110,7 @@ def fileToResults(path):
 	benchmarks = list()
 	flags = ""
 	for line in f:
-		if line[1] == "#":
+		if line[0] == "#":
 			continue
 		else:
 			benchmarks.append(stringToResults(line))

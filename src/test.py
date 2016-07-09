@@ -144,7 +144,7 @@ class Tester:
 		if self.failures != 0:
 			print(term.bold(term.red("FAILED: " + str(self.failures))))
 		if self.missing != 0:
-			print(term.bold(term.yellow("MISSED: " + str(self.missing))))
+			print(term.bold(term.yellow("MISSING: " + str(self.missing))))
 		if self.removedOvertime != 0:
 			print(term.bold(term.yellow("OVERTIME: " + str(self.removedOvertime))))			
 		if self.nolemmas != 0:
