@@ -1,128 +1,78 @@
-import glob
-import re
-from subprocess import Popen, TimeoutExpired, CalledProcessError, PIPE
-import sys
 import os
 from blessings import Terminal
-from tqdm import tqdm
-import signal
-import time
-import datetime
-import hashlib
-from constants import * 
-
-class Parser:
-	def __init__(self, config):
-		self.config = config
-		
-	def getUniqueProtocols(self):
-		hashes = set()
-		unique = list()
-		ps = self.getProtocols()
-		for p in ps:
-			h = hashlib.sha256(open(p,'rb').read()).hexdigest()
-			if h in hashes:
-				continue
-			else:
-				hashes.add(h)
-				unique.append(p)
-		duplicates = len(ps)-len(hashes)
-		if duplicates > 0:
-			print(INFORMATIONAL + "Ignoring "+ str(duplicates) + " duplicate protocols (identical hashes)")
-		return unique
-		
-	def getProtocols(self):
-		#Returns a list of strings holding each spthy file
-		return glob.glob(self.config.protocols+"/**/*.spthy",recursive=True)
-		
-	def getValidProtocols(self, protocols):
-		#Given a list of protocols, check well-formedness of each
-		tamarin_command = self.config.tamarin
-		path = self.config.protocols
-		validProtocols= list()
-		skips = ""
-		start = time.time()
-		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Well Formedness Checks"):
-			vp = self.validNormProtocol(p)
-			vdp = self.validDiffProtocol(p)
-			if vp !=1 and vdp != 1:
-				if vp + vdp < 0:
-					tqdm.write(CHECK_TIMEOUT + p[len(path):])
-				else:
-					tqdm.write(MALFORMED + p[len(path):])
-				continue
-			else:
-				validProtocols.append(p)
-		td = time.time() - start
-		print(INFORMATIONAL + "Finished well-formedness checks in " + prettyTime(td))
-		return validProtocols
-		
-	def validProtocol(self,path,diff):
-		#Tests whether a given protocol is well formed
-		try:
-			with open(os.devnull, 'w') as devnull:
-				output = runWithTimeout(self.config.tamarin+ getFlags(self.config.userFlags,0,diff,extractFlags(path)) +path,devnull,self.config.checkTime)
-			if " All well-formedness checks were successful." in str(output):
-				return 1
-			elif "TIMEOUT" in str(output):
-				return -1
-			else:
-				return 0
-		except CalledProcessError:
-			return 0
-
-	def validNormProtocol(self,path):
-		return self.validProtocol(path,0)
-	
-	def validDiffProtocol(self,path):
-		#Tests whether a given protocol is valid with a diff flag
-		return self.validProtocol(path,1)
-
-	def runAsDiff(self,path):
-		if self.validNormProtocol(path) != 1 and self.validDiffProtocol(path) == 1:
-			return 1
+class Settings:
+	def __init__(self, args):
+		self.protocols = args.protocols  #Path to Protocl Directory
+		self.tamarin = args.tamarin.name #Path to Tamarin Executable
+		self.contingency = args.contingency #Max multiples of benchmark time to wait for
+		self.repetitions = args.repetitions #How many samples to take for benchmark average
+		self.verbose = args.verbose
+		self.removeOvertime = args.overtime
+		self.absolute = 0.0
+		self.checkTime = 0.0
+		self.input = ""
+		self.output = ""
+		if args.flags is not None:
+			self.userFlags = args.flags #Any user defined flags to pass to Tamarin
 		else:
-			return 0		
-
-def getFlags(userFlags,prove,diff,prot):
-	#Build a flag string for Tamarin
-	flags = userFlags + " " + prot  
-	if prove:
-		flags += " --prove "
-	if diff:
-		flags += " --diff "
-	return flags
-
+			self.userFlags = ""
+		
 def prettyTime(s):
 	return  str(datetime.timedelta(seconds=s)).split('.', 1)[0]
-
-def extractFlags(path):
-	p = open(path,'r')
-	rec = "#tamarin-tester-flags:"
-	for line in p:
-		if line[0:len(rec)] == rec:
-			return line[len(rec):]
-	return ""
 	
-def runWithTimeout(command,errOutput,time):
-		#Run a command (INSECURE) with a specified timeout
-		output = ""
-		with Popen(command,shell=True,stdout=PIPE,stderr=errOutput,preexec_fn=os.setsid) as process:
-			try:
-				output = process.communicate(timeout=time)[0]
-			except TimeoutExpired:
-				os.killpg(process.pid, signal.SIGINT)
-				output = "TIMEOUT"
-		return output
+def validNormProtocol(tamarin,path,t):
+	return tamarin.isWellFormed(path,0,t)
 
-def getName(path):
-	#Return the name of a protocol at a file
-	with open(path, 'r') as f:
-		for line in f:
-			if re.match("^theory \w+", line):
-				close(f)
-				return line.split(' ')[1]
-		exit(1)
-		return("No defined name")
+def validDiffProtocol(tamarin,path,t):
+	return tamarin.isWellFormed(path,1,t)
 
+def runAsDiff(tamarin,path,t):
+	if validNormProtocol(tamarin,path,t) != 1 and validDiffProtocol(tamarin,path,t) == 1:
+		return 1
+	else:
+		return 0	
+		
+def getProtocols(path):
+		#Returns a list of strings holding each spthy file
+		return glob(path+"/**/*.spthy",recursive=True)
+		
+def getUniqueProtocols(path):
+	hashes = set()
+	unique = list()
+	ps = getProtocols(path)
+	for p in ps:
+		h = hashlib.sha256(open(p,'rb').read()).hexdigest()
+		if h in hashes:
+			continue
+		else:
+			hashes.add(h)
+			unique.append(p)
+	duplicates = len(ps)-len(hashes)
+	if duplicates > 0:
+		print(INFORMATIONAL + "Ignoring "+ str(duplicates) + " duplicate protocols (identical hashes)")
+	return unique		
 
+		
+VERSION = "Tamarin Tester v0.9"
+DESCRIPTION = "This program can be used to generate benchmark files for Tamarin which record correct results for a directory of protocols. Then it can be used to test an altered Tamarin compilation for correctness by comparing against these results. First navigate to a directory containing finished protocols and run Tamarin-Tester GOOD_TAMARIN_PATH. Then run Tamarin-Tester DEV_TAMARIN_PATH --b benchmark.txt and inspect the results."
+
+TERMINAL = Terminal()
+
+ERROR = TERMINAL.bold(TERMINAL.red("ERROR "))
+INFORMATIONAL = TERMINAL.bold(TERMINAL.blue("INFORMATIONAL "))
+WARNING = TERMINAL.yellow(TERMINAL.bold("WARNING "))
+
+CHECK_TIMEOUT= TERMINAL.red(TERMINAL.bold("CHECK TIMEOUT "))
+MALFORMED= TERMINAL.bold(TERMINAL.red("\t MALFORMED"))
+BENCH_TIMEOUT= TERMINAL.red(TERMINAL.bold("BENCH TIMEOUT "))
+NO_LEMMAS= TERMINAL.yellow(TERMINAL.bold("NO LEMMAS "))
+
+INCORRECT= TERMINAL.bold(TERMINAL.red("\t INCORRECT: "))
+STEPSIZE_INC= TERMINAL.bold(TERMINAL.yellow("\t STEPSIZE INC: "))
+STEPSIZE_DEC= TERMINAL.bold(TERMINAL.yellow("\t STEPSIZE DEC: "))
+TIMEOUT= TERMINAL.bold(TERMINAL.red("\t TIMEOUT "))
+
+OVERTIME= TERMINAL.yellow(TERMINAL.bold("OVERTIME "))
+MISSING= TERMINAL.yellow(TERMINAL.bold("MISSING "))
+FAILED= TERMINAL.bold(TERMINAL.red("FAILED "))
+PASSED= TERMINAL.bold(TERMINAL.green("PASSED "))

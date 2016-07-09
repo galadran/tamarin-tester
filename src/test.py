@@ -3,17 +3,18 @@ from bench import *
 from results import *
 from tqdm import tqdm
 import time
-from constants import * 
+from interface import Tamarin
 
 class Tester:
 	def __init__(self, config):
 		self.config = config
 		
 		self.parser = Parser(config)
+		self.tamarin = Tamarin(config)
 		
 		#Load protocols and benchmarks
 		self.hashToPath = dict()
-		ps = self.parser.getUniqueProtocols()
+		ps = getUniqueProtocols(self.config.protocols)
 		for p in ps:
 			h = hashlib.sha256(open(p,'rb').read()).hexdigest()
 			self.hashToPath[h] = p
@@ -115,7 +116,7 @@ class Tester:
 				tqdm.write(NOLEMMAS + self.hashToPath[b.fileHash][len(config.protocols):])
 				continue
 			#Here we check for well formedness
-			if (not b.diff and self.parser.validNormProtocol(self.hashToPath[b.fileHash])) or (b.diff and self.parser.validDiffProtocol(self.hashToPath[b.fileHash])):
+			if (not b.diff and validNormProtocol(self.tamarin,self.hashToPath[b.fileHash]),self.config.checkTime) or (b.diff and validDiffProtocol(self.tamarin,self.hashToPath[b.fileHash],self.config.checkTime)):
 					tqdm.write(self.testProtocol(self.hashToPath[b.fileHash],b),end="")
 			else:
 				#Both test and benchmark versions should agree on well formedness
@@ -170,24 +171,16 @@ class Tester:
 		message = ""
 		#We stop Tamarin when we go over our absolute or relative maximum
 		allowedTime = min(config.absolute,bench.avgTime*config.contingency)
-		try:
-			#Ignore Tamarin Error messages (they will be unhelpful and misleading for us)
-			with open(os.devnull, 'w') as devnull:
-				#Launch the Tamarin instance
-				output = runWithTimeout(config.tamarin+" "+getFlags(self.flags,1,bench.diff,extractFlags(protocol_path))+" "+ protocol_path,devnull,allowedTime)
-				#If we TIMEOUT here, the benchmark did not and hence this is a failure
-				if "TIMEOUT" in str(output):
-					self.failures+= 1
-					ret = FAILED + protocol_path[len(config.protocols):] + "\n" + TIMEOUT + "after " + prettyTime(allowedTime) + " expected: " + prettyTime(bench.avgTime) +" \n"
-					if bench.avgTime > self.config.absolute:
-						return  ret + INFORMATIONAL + "this protocol was expected to timeout \n"
-					else:
-						return ret
-		except CalledProcessError:
-			#This indicates Tamarin raised an error. We output the file we had a problem with
-			print(ERROR + " Testing " + protocol_path[len(config.protocols):])
-			exit(1)
-		message = compareResults(extractLemmas(trimOutput(str(output).replace("\\n","\n"))),bench)
+		output = self.tamarin.getResults(protocol_path,bench.diff,allowedTime)
+		#If we TIMEOUT here, the benchmark did not and hence this is a failure
+		if "TIMEOUT" in output.lemmas:
+			self.failures+= 1
+			ret = FAILED + protocol_path[len(config.protocols):] + "\n" + TIMEOUT + "after " + prettyTime(allowedTime) + " expected: " + prettyTime(bench.avgTime) +" \n"
+			if bench.avgTime > self.config.absolute:
+				return  ret + INFORMATIONAL + "this protocol was expected to timeout \n"
+			else:
+				return ret
+		message = compareResults(output,bench)
 		#Add a title message to our sublistings
 		if "INCORRECT" in message:
 			self.failures+= 1

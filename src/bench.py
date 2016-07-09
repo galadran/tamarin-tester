@@ -1,9 +1,11 @@
 from shared import *
-import time
 from results import *
+from constants import * 
+from inteface import Tamarin
+
+from glob import glob
 from tqdm import tqdm
 import time
-from constants import * 
 
 class Bencher:
 	def __init__(self, config):
@@ -12,49 +14,62 @@ class Bencher:
 		self.check = 0
 		self.nolemmas = 0
 		self.parser = Parser(config)
-
+		self.tamarin = Tamarin(config)
+		
 	def estBenchTime(self):
 		#Print a worst case time estimate
-		count = len(self.parser.getProtocols())
+		count = len(getUniqueProtocols(self.config.protocols))
 		runtime = count * (self.config.checkTime + self.config.absolute * self.config.repetitions)
 		print(INFORMATIONAL + "WORST CASE time to complete benchmark is " + prettyTime(runtime))
+
+	def getValidProtocols(self):
+		#Given a list of protocols, check well-formedness of each
+		validProtocols= list()
+		start = time.time()
+		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Well Formedness Checks"):
+			vp = validNormProtocol(self.tamarin,p,self.config.checkTime)
+			vdp = validDiffProtocol(self.tamarin,p,self.config.checkTime)
+			if vp !=1 and vdp != 1:
+				if vp + vdp < 0:
+					tqdm.write(term.red(term.bold("CHECK TIMEOUT ")) + p[len(path):])
+				else:
+					tqdm.write(term.red(term.bold("MALFORMED ")) + p[len(path):])
+				continue
+			else:
+				validProtocols.append(p)
+		td = time.time() - start
+		print(term.bold(term.blue("INFORMATIONAL ")) + "Finished well-formedness checks in " + prettyTime(td))
+		return validProtocols
 		
 	def benchProtocol(self,protocol_path):
 		#Derive a benchmark for a particular protocol
 		config = self.config
 		output = ""
-		diff =self.parser.runAsDiff(protocol_path)
-		protFlags = extractFlags(protocol_path)
+		diff = runAsDiff(self.tamarin,protocol_path)
 		totalTime = 0.0
 		for i in range(0, config.repetitions):
 			start = time.time()
-			try:
-				with open(os.devnull, 'w') as devnull:
-					#Run a benchmark for up to the maximum amount of time
-					output = str(runWithTimeout(config.tamarin+" "+getFlags(config.userFlags,1, diff,protFlags)+" "+ protocol_path,devnull,config.absolute)).replace("\\n","\n")
-					filtered = trimOutput(output)
-					if "TIMEOUT" in output:
-						tqdm.write(BENCH_TIMEOUT + protocol_path[len(config.protocols):])
-						self.failed +=1
-						break
-					elif len(filtered) == 0:
-						tqdm.write(NO_LEMMAS + protocol_path[len(config.protocols):])
-						self.nolemmas +=1
-						break #No need to repeat if there is nothing to test
-			except CalledProcessError:
-				print(ERROR + " benchmarking " + protocol_path[len(paths):])
-				exit(1)
+			output = self.tamarin.getResults(protocol_path,diff,config.absolute)
+				if "TIMEOUT" in output.lemmas:
+					tqdm.write(BENCH_TIMEOUT + protocol_path[len(config.protocols):])
+					self.failed +=1
+					break
+				elif "NOLEMMAS" in output.results:
+					tqdm.write(NO_LEMMAS + protocol_path[len(config.protocols):])
+					self.nolemmas +=1
+					break #No need to repeat if there is nothing to test
 			end = time.time() - start
 			totalTime += end
-		return outputToResults(filtered,protocol_path,diff,totalTime/config.repetitions,protFlags)
+		output.avgTime = totalTime/config.repetitions
+		return output
 
 	def performBenchmark(self):
 		#Perform a benchmark on all passed protocols
 		config = self.config
 		print(INFORMATIONAL+"Validating protocols...")
-		files = self.parser.getUniqueProtocols()
+		files = getUniqueProtocols(self.config.protocols)
 		self.original = len(files)
-		protocols = self.parser.getValidProtocols(files)
+		protocols = self.getValidProtocols(files)
 		if len(protocols) == 0:
 			print(ERROR + " No valid protocols!")
 			exit(1)
