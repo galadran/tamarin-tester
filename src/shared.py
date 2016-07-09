@@ -1,8 +1,7 @@
-import os
 from blessings import Terminal
 from glob import glob 
-import hashlib
-import datetime
+from hashlib import sha256
+from datetime import timedelta
 
 class Settings:
 	def __init__(self, args):
@@ -22,7 +21,7 @@ class Settings:
 			self.userFlags = ""
 		
 def prettyTime(s):
-	return  str(datetime.timedelta(seconds=s)).split('.', 1)[0]
+	return  str(timedelta(seconds=s)).split('.', 1)[0]
 	
 def validNormProtocol(tamarin,path,t):
 	return tamarin.isWellFormed(path,0,t)
@@ -45,7 +44,7 @@ def getUniqueProtocols(path):
 	unique = list()
 	ps = getProtocols(path)
 	for p in ps:
-		h = hashlib.sha256(open(p,'rb').read()).hexdigest()
+		h = sha256(open(p,'rb').read()).hexdigest()
 		if h in hashes:
 			continue
 		else:

@@ -1,9 +1,9 @@
+from tqdm import tqdm
+from time import time
+
 from shared import *
 from results import resultToString
 from interface import Tamarin
-
-from tqdm import tqdm
-import time
 
 class Bencher:
 	def __init__(self, config):
@@ -22,7 +22,7 @@ class Bencher:
 	def getValidProtocols(self):
 		#Given a list of protocols, check well-formedness of each
 		validProtocols= list()
-		start = time.time()
+		start = time()
 		for p in tqdm(getUniqueProtocols(self.config.protocols),leave=False,smoothing=0.0,desc="Well Formedness Checks"):
 			vp = validNormProtocol(self.tamarin,p,self.config.checkTime)
 			vdp = validDiffProtocol(self.tamarin,p,self.config.checkTime)
@@ -34,7 +34,7 @@ class Bencher:
 				continue
 			else:
 				validProtocols.append(p)
-		td = time.time() - start
+		td = time() - start
 		print(INFORMATIONAL + "Finished well-formedness checks in " + prettyTime(td))
 		return validProtocols
 		
@@ -45,7 +45,7 @@ class Bencher:
 		diff = runAsDiff(self.tamarin,protocol_path,self.config.checkTime)
 		totalTime = 0.0
 		for i in range(0, config.repetitions):
-			start = time.time()
+			start = time()
 			output = self.tamarin.getResults(protocol_path,diff,config.absolute)
 			if "TIMEOUT" in output.lemmas:
 				tqdm.write(BENCH_TIMEOUT + protocol_path[len(config.protocols):])
@@ -55,7 +55,7 @@ class Bencher:
 				tqdm.write(NO_LEMMAS + protocol_path[len(config.protocols):])
 				self.nolemmas +=1
 				break #No need to repeat if there is nothing to test
-			end = time.time() - start
+			end = time() - start
 			totalTime += end
 		output.avgTime = totalTime/config.repetitions
 		return output
@@ -72,10 +72,10 @@ class Bencher:
 			exit(1)
 		output = open(config.output,'w')
 		print(INFORMATIONAL + "Benchmarking protocols...")
-		start = time.time()
+		start = time()
 		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Benchmarking protocols"):
 			output.write(resultToString(self.benchProtocol(p))+"\n")
-		td = time.time() - start
+		td = time() - start
 		print(INFORMATIONAL + "Finished benchmarking in " + prettyTime(td) + " seconds")
 		print(INFORMATIONAL + "Benchmark written to " + config.output)
 		self.check = self.original - len(protocols)

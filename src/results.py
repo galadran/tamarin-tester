@@ -1,6 +1,6 @@
-import ast
-import hashlib
-import sys
+from ast import literal_eval
+from sys import exit
+
 from shared import *
 
 class Result:
@@ -38,7 +38,7 @@ def stringToResults(val):
 	row = val.split("|")
 	if row[2] == "TIMEOUT" or row[2] == "NOLEMMAS":
 		return Result(row[0],row[1],row[2],row[3],row[4])
-	return Result(row[0],row[1],ast.literal_eval(row[2]),row[3],row[4])
+	return Result(row[0],row[1],literal_eval(row[2]),row[3],row[4])
 
 def resultToString(res):
 	#Return a string representing a result object

@@ -4,9 +4,10 @@ from pathtype import PathType
 from os import getcwd, path
 from sys import exit 
 #Internal Imports
+from shared import *
 from test import Tester 
 from bench import Bencher
-from shared import *
+
 
 parser = ArgumentParser(description=DESCRIPTION)
 parser.add_argument("-p","--protocols", metavar='DIR', help="directory containing test protocols", type=PathType(exists=True, type='dir'),default= getcwd())

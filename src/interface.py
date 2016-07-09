@@ -1,15 +1,12 @@
+from subprocess import Popen, TimeoutExpired, CalledProcessError, PIPE
+from sys import exit 
+from os import devnull as os_devnull,killpg,setsid
+from tqdm import tqdm
+from signal import SIGINT
+from hashlib import sha256
+
 from shared import * 
 from results import Result
-import glob
-import re
-from subprocess import Popen, TimeoutExpired, CalledProcessError, PIPE
-import sys
-import os
-from tqdm import tqdm
-import signal
-import time
-
-
 
 class Tamarin:
 	def __init__(self,config):
@@ -18,7 +15,7 @@ class Tamarin:
 
 	def getResults(self,protocol_path,diff,timeout):
 		try:
-			with open(os.devnull, 'w') as devnull:
+			with open(os_devnull, 'w') as devnull:
 				protFlags = extractFlags(protocol_path)
 				allFlags = getFlags(self.flags,1, diff,protFlags)
 				rawOutput = runWithTimeout(self.path+" "+allFlags+" "+ protocol_path,devnull,timeout)
@@ -33,7 +30,7 @@ class Tamarin:
 	def isWellFormed(self,path,diff,timeout):
 		#Tests whether a given protocol is well formed
 		try:
-			with open(os.devnull, 'w') as devnull:
+			with open(os_devnull, 'w') as devnull:
 				output = runWithTimeout(self.path+ getFlags(self.flags,0,diff,extractFlags(path)) +path,devnull,timeout)
 			if " All well-formedness checks were successful." in str(output):
 				return 1
@@ -63,7 +60,7 @@ def extractFlags(path):
 	
 def outputToResults(output, path, diff,avgTime,flags):
 	#Create a results object out of TRIMMED Tamarin Output
-	fileHash = hashlib.sha256(open(path, 'rb').read()).hexdigest()
+	fileHash = sha256(open(path, 'rb').read()).hexdigest()
 	if "TIMEOUT" in output:
 		return Result(fileHash,diff,"TIMEOUT",0.0,flags)
 	elif len(output) == 0:
@@ -119,10 +116,10 @@ def extractLemmas(filtered):
 def runWithTimeout(command,errOutput,time):
 	#Run a command (INSECURE) with a specified timeout
 	output = ""
-	with Popen(command,shell=True,stdout=PIPE,stderr=errOutput,preexec_fn=os.setsid) as process:
+	with Popen(command,shell=True,stdout=PIPE,stderr=errOutput,preexec_fn=setsid) as process:
 		try:
 			output = process.communicate(timeout=time)[0]
 		except TimeoutExpired:
-			os.killpg(process.pid, signal.SIGINT)
+			killpg(process.pid, SIGINT)
 			output = "TIMEOUT"
 	return output

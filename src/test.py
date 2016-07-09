@@ -1,9 +1,11 @@
+from tqdm import tqdm
+from time import time
+from hashlib import sha256
+
 from shared import *
 from results import fileToResults,compareResults
-
-from tqdm import tqdm
-import time
 from interface import Tamarin
+
 
 class Tester:
 	def __init__(self, config):
@@ -15,7 +17,7 @@ class Tester:
 		self.hashToPath = dict()
 		ps = getUniqueProtocols(self.config.protocols)
 		for p in ps:
-			h = hashlib.sha256(open(p,'rb').read()).hexdigest()
+			h = sha256(open(p,'rb').read()).hexdigest()
 			self.hashToPath[h] = p
 			
 		self.flags, self.benchmarks = fileToResults(config.input)
@@ -102,7 +104,7 @@ class Tester:
 		hashes = set(self.hashToPath.keys())
 		#For each benchmark, sorted from quickest to slowest
 		print(INFORMATIONAL +"Testing protocols...")
-		start = time.time()
+		start = time()
 		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),smoothing=1.0,leave=False,desc="Testing against benchmarks"):
 			if b.fileHash not in hashes or "TIMEOUT" in b.lemmas:
 				#We can ignore this benchmark as either we have no data or its not in our test input
@@ -127,7 +129,7 @@ class Tester:
 			else:
 				self.missing+= 1
 				print(MISSING + self.hashToPath[h][len(config.protocols):])
-		td = time.time() - start
+		td = time() - start
 		print(INFORMATIONAL + "Finished testing in " + prettyTime(td))
 		self.printSummary()
 
