@@ -27,7 +27,6 @@ parser.add_argument("-mc","--maxcheck", metavar='INT', help="Maximum time to run
 parser.add_argument("-v","--verbose",help="Enabled verbose logging",action='store_true')
 parser.add_argument("-over", "--overtime", help="Filter out protocols which are expected to timeout",action='store_true')
 
-
 args = parser.parse_args()
 
 if args.benchmark is None and (args.maxproof is None or args.maxcheck is None):

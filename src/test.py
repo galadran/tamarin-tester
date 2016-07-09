@@ -173,7 +173,7 @@ class Tester:
 			#Ignore Tamarin Error messages (they will be unhelpful and misleading for us)
 			with open(os.devnull, 'w') as devnull:
 				#Launch the Tamarin instance
-				output = runWithTimeout(config.tamarin+" "+getFlags(self.flags,bench.diff,extractFlags(protocol_path))+" "+ protocol_path,devnull,allowedTime)
+				output = runWithTimeout(config.tamarin+" "+getFlags(self.flags,1,bench.diff,extractFlags(protocol_path))+" "+ protocol_path,devnull,allowedTime)
 				#If we TIMEOUT here, the benchmark did not and hence this is a failure
 				if "TIMEOUT" in str(output):
 					self.failures+= 1

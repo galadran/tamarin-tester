@@ -33,7 +33,7 @@ class Bencher:
 			try:
 				with open(os.devnull, 'w') as devnull:
 					#Run a benchmark for up to the maximum amount of time
-					output = str(runWithTimeout(config.tamarin+" "+getFlags(config.userFlags, diff,protFlags)+" "+ protocol_path,devnull,config.absolute)).replace("\\n","\n")
+					output = str(runWithTimeout(config.tamarin+" "+getFlags(config.userFlags,1, diff,protFlags)+" "+ protocol_path,devnull,config.absolute)).replace("\\n","\n")
 					filtered = trimOutput(output)
 					if "TIMEOUT" in output:
 						tqdm.write(term.red(term.bold("BENCH TIMEOUT ")) + protocol_path[len(config.protocols):])

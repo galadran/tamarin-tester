@@ -30,7 +30,7 @@ class Parser:
 			vp = self.validNormProtocol(p)
 			vdp = self.validDiffProtocol(p)
 			if vp !=1 and vdp != 1:
-				if vp + vdp == -2:
+				if vp + vdp < 0:
 					tqdm.write(term.red(term.bold("CHECK TIMEOUT ")) + p[len(path):])
 				else:
 					tqdm.write(term.red(term.bold("MALFORMED ")) + p[len(path):])
@@ -45,7 +45,7 @@ class Parser:
 		#Tests whether a given protocol is well formed
 		try:
 			with open(os.devnull, 'w') as devnull:
-				output = runWithTimeout(self.config.tamarin+ getFlags(self.config.userFlags,diff,extractFlags(path)) +path,devnull,self.config.checkTime)
+				output = runWithTimeout(self.config.tamarin+ getFlags(self.config.userFlags,0,diff,extractFlags(path)) +path,devnull,self.config.checkTime)
 			if " All well-formedness checks were successful." in str(output):
 				return 1
 			elif "TIMEOUT" in str(output):
@@ -68,11 +68,13 @@ class Parser:
 		else:
 			return 0		
 
-def getFlags(userFlags, diff,prot):
+def getFlags(userFlags,prove,diff,prot):
 	#Build a flag string for Tamarin
-	flags = userFlags + " " + prot + " --prove "
+	flags = userFlags + " " + prot  
+	if prove:
+		flags += " --prove "
 	if diff:
-		flags += "--diff "
+		flags += " --diff "
 	return flags
 
 def prettyTime(s):
