@@ -4,6 +4,7 @@ from test import *
 import argparse
 import pathtype
 import os
+from system import exit 
 from blessings import Terminal
 from settings import Settings
 
