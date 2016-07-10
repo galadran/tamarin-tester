@@ -104,7 +104,11 @@ This can be done in one of two ways,  either flags can be passed to every protoc
 
 ##Contact 
 Dennis Jackson
+
 Doctoral student
+
 Computer Science Department
+
 University of Oxford
+
 dennis (dot) jackson (at) cs (dot) ox (dot) ac (dot) uk 
