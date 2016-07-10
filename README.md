@@ -70,14 +70,14 @@ Otherwise, tamarin-tester runs in test mode:
 |--overtime | -over | FLAG | In Test mode, when a max proof time has been specified, filter our protocols which are expected not to terminate. |  
 
 ##Output
+
 In benchmark mode: 
 | Tag | Meaning |
 | --- | --- |
 | CHECK TIMEOUT | Checking well-formedness for the given protocol timed out (`maxcheck`) and it will be omitted from the benchmark |
 | MALFORMED | The given protcol is not well-formed and it will be omitted from the benchmark |
 | BENCH TIMEOUT | Tamarin did not terminate in the time specified (`maxproof`) and this protocol will be omitted from the benchmark|
-| NO LEMMAS | This protocol did not contain any lemmas to prove, so there is nothing to benchmark, a flag may need to be passed to Tamarin to enable an `IFDEF`, alternatively you may annotate the protocol file with a line of the form: `tamarin-tester-flags:FLAGS` which will lead to tamarin-tester passing through this flag to tamarin-prover only for this protocol file |
-##Passing Flags to Tamarin
+| NO LEMMAS | This protocol did not contain any lemmas to prove, so there is nothing to benchmark, a flag may need to be passed to Tamarin to enable an `IFDEF`, alternatively you may annotate the protocol file with a line of the form: `#tamarin-tester-flags:FLAGS` which will lead to tamarin-tester passing through this flag to tamarin-prover only for this protocol file |
 
 In test mode: 
 
@@ -98,6 +98,9 @@ For PASSED, WARNING, FAILED, there will be attached reason messages:
 | STEPSIZE DEC | This lemma took less steps to prove with the new build|
 | INCORRECT | This lemma has a different truth value with the new build |
 | TIMEOUT | This protocol failed to terminate in the allotted time which is the contingency value (argument) c * avgRunTime (from the benchmark file) for the protocol file |
+
+##Passing Flags to Tamarin
+This can be done in one of two ways,  either flags can be passed to every protocol with the `--flags` argument, or alternativel you can write `#tamarin-tester-flags:` inside a protocol file followed by the flags you want to pass for that particular protocol. Typically this will be to pass a flag for tamarin to enable an IFDEF. If you wish for a protocl file to be tested multiple times with different flags, you will have to duplicate and edit each file. 
 
 ##Contact 
 Dennis Jackson
