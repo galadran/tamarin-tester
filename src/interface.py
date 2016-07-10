@@ -1,6 +1,6 @@
 from subprocess import Popen, TimeoutExpired, CalledProcessError, PIPE
 from sys import exit 
-from os import devnull as os_devnull,killpg,setsid
+from os import devnull as os_devnull,killpg,setsid,environ,getcwd
 from tqdm import tqdm
 from signal import SIGINT
 from hashlib import sha256
@@ -17,8 +17,10 @@ class Tamarin:
 		try:
 			with open(os_devnull, 'w') as devnull:
 				protFlags = extractFlags(protocol_path)
-				allFlags = getFlags(self.flags,1, diff,protFlags)
-				rawOutput = runWithTimeout(self.path+" "+allFlags+" "+ protocol_path,devnull,timeout)
+				command = [self.path]
+				command.extend(getFlags(self.flags,1, diff,protFlags))
+				command.append(protocol_path)
+				rawOutput = runWithTimeout(command,devnull,timeout)
 				strOutput = str(rawOutput).replace("\\n","\n")
 				if "TIMEOUT" not in strOutput: 
 					strOutput = trimOutput(strOutput)
@@ -31,7 +33,10 @@ class Tamarin:
 		#Tests whether a given protocol is well formed
 		try:
 			with open(os_devnull, 'w') as devnull:
-				output = runWithTimeout(self.path+ getFlags(self.flags,0,diff,extractFlags(path)) +path,devnull,timeout)
+				command = [self.path]
+				command.extend(getFlags(self.flags,0,diff,extractFlags(path)))
+				command.append(path)
+				output = runWithTimeout(command,devnull,timeout)
 			if " All well-formedness checks were successful." in str(output):
 				return 1
 			elif "TIMEOUT" in str(output):
@@ -43,11 +48,15 @@ class Tamarin:
 		
 def getFlags(user,prove,diff,prot):
 	#Build a flag string for Tamarin
-	flags = user + " " + prot  
+	flags = []
+	if len(user) > 0:
+		flags.append(user)
+	if len(prot) > 0:
+		flags.append(user)
 	if prove:
-		flags += " --prove "
+		flags.append("--prove")
 	if diff:
-		flags += " --diff "
+		flags.append("--diff")
 	return flags
 
 def extractFlags(path):
@@ -116,7 +125,7 @@ def extractLemmas(filtered):
 def runWithTimeout(command,errOutput,time):
 	#Run a command (INSECURE) with a specified timeout
 	output = ""
-	with Popen(command,shell=True,stdout=PIPE,stderr=errOutput,preexec_fn=setsid) as process:
+	with Popen(command,shell=False,cwd=getcwd(),env=environ,stdout=PIPE,stderr=errOutput,preexec_fn=setsid) as process:
 		try:
 			output = process.communicate(timeout=time)[0]
 		except TimeoutExpired:
