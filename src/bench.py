@@ -12,10 +12,12 @@ class Bencher:
 		self.check = 0
 		self.nolemmas = 0
 		self.tamarin = Tamarin(config)
+		self.uniqueProtocols = getUniqueProtocols(self.config.protocols)
+		self.original = len(self.uniqueProtocols)
 		
 	def estBenchTime(self):
 		#Print a worst case time estimate
-		count = len(getUniqueProtocols(self.config.protocols))
+		count = self.original
 		runtime = count * (self.config.checkTime + self.config.absolute * self.config.repetitions)
 		print(INFORMATIONAL + "WORST CASE time to complete benchmark is " + prettyTime(runtime))
 
@@ -23,7 +25,7 @@ class Bencher:
 		#Given a list of protocols, check well-formedness of each
 		validProtocols= list()
 		start = time()
-		for p in tqdm(getUniqueProtocols(self.config.protocols),leave=False,smoothing=0.0,desc="Well Formedness Checks"):
+		for p in tqdm(self.uniqueProtocols,leave=False,smoothing=0.0,desc="Well Formedness Checks"):
 			vp = validNormProtocol(self.tamarin,p,self.config.checkTime)
 			vdp = validDiffProtocol(self.tamarin,p,self.config.checkTime)
 			if vp !=1 and vdp != 1:
@@ -64,8 +66,6 @@ class Bencher:
 		#Perform a benchmark on all passed protocols
 		config = self.config
 		print(INFORMATIONAL+"Validating protocols...")
-		files = getUniqueProtocols(self.config.protocols)
-		self.original = len(files)
 		protocols = self.getValidProtocols()
 		if len(protocols) == 0:
 			print(ERROR + " No valid protocols!")
