@@ -17,9 +17,7 @@ class Tamarin:
 		try:
 			with open(os_devnull, 'w') as devnull:
 				protFlags = extractFlags(protocol_path)
-				command = [self.path]
-				command.extend(getFlags(self.flags,1, diff,protFlags))
-				command.append(protocol_path)
+				command = marshalCommand(self.path,getFlags(self.flags,1, diff,protFlags),protocol_path)
 				rawOutput = runWithTimeout(command,devnull,timeout)
 				strOutput = str(rawOutput).replace("\\n","\n")
 				if "TIMEOUT" not in strOutput: 
@@ -33,9 +31,7 @@ class Tamarin:
 		#Tests whether a given protocol is well formed
 		try:
 			with open(os_devnull, 'w') as devnull:
-				command = [self.path]
-				command.extend(getFlags(self.flags,0,diff,extractFlags(path)))
-				command.append(path)
+				command = marshalCommand(self.path,getFlags(self.flags,0,diff,extractFlags(path)),path)
 				output = runWithTimeout(command,devnull,timeout)
 			if " All well-formedness checks were successful." in str(output):
 				return 1
@@ -121,7 +117,13 @@ def extractLemmas(filtered):
 		print(filtered)
 		exit(1)
 		return "NONE"
-			
+
+def marshalCommand(exec_path,flags,prot_path):
+	command = [exec_path]
+	command.extend(flags)
+	command.append(prot_path)
+	return command
+
 def runWithTimeout(command,errOutput,time):
 	#Run a command (INSECURE) with a specified timeout
 	output = ""
