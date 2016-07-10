@@ -33,7 +33,7 @@ An already built binary for 64-bit Ubuntu 16.04 is on the Releases page, but has
 ###Building a benchmark
 Firstly, we need to produce a benchmark file from a known-good build of tamarin
 ```
-tamarin-tester TAMARIN -p PROTOCOLS --benchmark -maxproof INT --maxcheck INT
+tamarin-tester TAMARIN -p PROTOCOLS --benchmark -maxproof FLOAT --maxcheck FLOAT
 ```
 Where `TAMARIN` is the path to the known-good tamarin build you want to benchmark, on a standard install this is `~/.local/bin/tamarin-prover` and `PROTOCOLS` is the path to the directory of protocols you want to benchmark. Note this parameter is optional and will default to the current working directory if omitted. `--maxproof` and `--maxcheck` are mandatory are denote the maximum time in seconds to wait for tamarin-prover to terminate (for proving and well-formedness checks respectively).  `tamarin-tester` will then build the benchmark file and display its progress. The benchmark file will be output as `benchmark.res` in the same folder as the protcols. Benchmarking can take some time!
 
