@@ -40,7 +40,6 @@ class Tester:
 			if self.config.verbose:
 				print(INFORMATIONAL + "Used default max check time: (min(prooftime, maxFileTime)) " + prettyTime(config.checkTime))
 		elif self.config.verbose:
-			print(str(self.config.checkTime))
 			print(INFORMATIONAL + "Max Check Time (from argument): " + prettyTime(config.checkTime))
 			
 		#Reload the parser in case we made any changes

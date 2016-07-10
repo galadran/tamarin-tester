@@ -42,8 +42,6 @@ def stringToResults(val):
 
 def resultToString(res):
 	#Return a string representing a result object
-	if "TIMEOUT" in str(res.lemmas):
-		return ""
 	return res.fileHash + "|" + str(res.diff) + "|" +str(res.lemmas) + "|" + str(res.avgTime) + "|" + str(res.flags)
 	
 def fileToResults(path):
