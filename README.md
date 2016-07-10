@@ -9,96 +9,88 @@ The tool automatically tests the quickest to verify protocols first in order to 
 
 ##In Action
 ###Benchmarking
-<a href="https://asciinema.org/a/azopzkvcgctzc5s7tyo76ryvz?speed=30"><img src="https://asciinema.org/a/azopzkvcgctzc5s7tyo76ryvz.png" alt="Classic" width="400" border="0"></a>
-###A failing test
-<a href="https://asciinema.org/a/3sr38jrk8hijjupq9fbqgxwuc?speed=7"><img src="https://asciinema.org/a/3sr38jrk8hijjupq9fbqgxwuc.png" alt="Classic" width="400" border="0"></a>
+<a href="https://asciinema.org/a/bty6vz7v4xfzf0j0etong4fbh"><img src="https://asciinema.org/a/bty6vz7v4xfzf0j0etong4fbh.png" alt="Classic" width="400" border="0"></a>
 ###A passing test
-<a href="https://asciinema.org/a/58t0e3v6cltr7jqajqijwzq8r?speed=7"><img src="https://asciinema.org/a/58t0e3v6cltr7jqajqijwzq8r.png" alt="Classic" width="400" border="0"></a>
+<a href="https://asciinema.org/a/eplydwh1w5hlxw6k7njq4ulsv"><img src="https://asciinema.org/a/eplydwh1w5hlxw6k7njq4ulsv" alt="Classic" width="400" border="0"></a>
+###A failing test
+<a href="https://asciinema.org/a/a4g4112qy7i95sl9rbko9kmxu"><img src="https://asciinema.org/a/a4g4112qy7i95sl9rbko9kmxu.png" alt="Classic" width="400" border="0"></a>
 
-###Quickstart
-####Installation
-The easiest method is to install Python3 and PyInstaller, git clone the directory and inside run 
+##Quickstart
+###Installation
+Git Clone / Download the repo, ensure python3 and pip3 are installed, then run the following commands
 
 ```
+pip3 install tqdm blessings pyinstaller
 pyinstaller src/tamarin-tester.py --onefile
 ```
-
-which will produce a binary for your system inside dist/ 
+If you wish to add the binary to your system path for convenience, it is suggested to put it in the same folder as default for the tamarin-prover. 
+```
+cp dist/tamarin-tester ~/.local/bin/tamarin-tester
+```
 
 An already built binary for 64-bit Ubuntu 16.04 is on the Releases page, but has only been tested on one machine. 
 
-####Building a benchmark
+###Building a benchmark
 Firstly, we need to produce a benchmark file from a known-good build of tamarin
 ```
-tamarin-tester TAMARIN -p PROTOCOLS
+tamarin-tester TAMARIN -p PROTOCOLS --benchmark -maxproof INT --maxcheck INT
 ```
-Where `TAMARIN` is the path to the known-good tamarin build you want to benchmark, on a standard install this is `~/.local/bin/tamarin-prover` and `PROTOCOLS` is the path to the directory of protocols you want to benchmark. Note this parameter is optional and will default to the current working directory if omitted. 
+Where `TAMARIN` is the path to the known-good tamarin build you want to benchmark, on a standard install this is `~/.local/bin/tamarin-prover` and `PROTOCOLS` is the path to the directory of protocols you want to benchmark. Note this parameter is optional and will default to the current working directory if omitted. `--maxproof` and `--maxcheck` are mandatory are denote the maximum time in seconds to wait for tamarin-prover to terminate (for proving and well-formedness checks respectively).  `tamarin-tester` will then build the benchmark file and display its progress. The benchmark file will be output as `benchmark.res` in the same folder as the protcols. Benchmarking can take some time!
 
-This will run the benchmark and disply a live progress report. The benchmark file will be output as `benchmark.res` in the current working directory. This benchmark file stores the hash of each inspected file and for each contained lemma, stores whether Tamarin proved or falisfied it and how many steps it took. Furthermore the proof time in seconds is stored.
-
-####Testing a new build
+###Testing a new build
 ```
-tamarin-tester TAMARIN -p PROTOCOLS -b BENCHMARK
+tamarin-tester TAMARIN -p PROTOCOLS -i BENCHMARK
 ```
-Where `TAMARIN` is the path to the development tamarin build you want to test, `PROTOCOLS` is the path to the directory of protocols you want to test the tamarin build against and `BENCHMARK` is a path to the `benchmark.res` file you wish to test against. 
+Where `TAMARIN` is the path to the development tamarin build you want to test, `PROTOCOLS` is the path to the directory of protocols you want to test the tamarin build against.`BENCHMARK` is a path to the `benchmark.res` file you wish to test against. `PROTOCOLS` and `BENCHMARK` are optional, if omitted `tamarin-tester` will default respectively to the current working directory and the same directory as the protocols.
 
 This will run the test and display a live progress report. Pay attention to the estimated time as testing can take some time. It will finish with a summary detailing one of `PASS`, `FAIL`, `????`. The first two are self-explanatory. `????` is reported when their are protocol files in the directory which have no benchmark, when their are protocol files in the directory which have no lemmas (usually because of an `IFDEF`) or if the step counts change for a particular proof, but otherwise no actual failures occur.  
 
-##Global Command Line Options
-Also see the mode specific options below
+##Comand Line Options
+The path to the Tamarin build you want to bench or test is mandatory. For benchmark mode, selected by passing `-b` or `--benchmark`:
 
-| Command | Default | Description | 
-| --- | --- | --- |
-| `TAMARIN` |None| The only mandatory argument, the path to the known-good tamarin build you want to benchmark|
-| `-p`, `--protocols` |$PWD| The directory to recursively scan for `.spthy` files|
-| `-mp`, `--maxproof` |30| (integer) max time in seconds to run a proof for|
-| `-mc`, `--maxcheck` |10| (integer) max time in seconds to test for wellformedness|
-| `-v`, `--verbose` |FLAG| Enables verbose logging|
+| Long Option | Short Option | Default | Description
+| --- | --- | --- | --- |
+|--protocols | -p | Working Directory | The directory containing protocols you want to test/benchmark |
+|--verbose | -v | FLAG | Runs tamarin-tester with additional log messages |
+|--repetitions | -r | 1 | When running in benchmark mode, the number of samples to take to for the expected average runtime. WARNING `-r 2` will DOUBLE the runtime of `-r 1` |
+|--maxproof | -mp | NA | Denotes the maximum time to wait for tamarin-prover to return a proof. Mandatory for benchmark mode |
+|--maxcheck | -mc | NA | Denotes the maximum time to wait for tamarin-prover to return a well-formedness check. Mandatory for benchmark mode. |
+|--output | -o | Protocols Directory | In Benchmark Mode, the path to write the benchmark to |
 
-##Generating a benchmark
-This is the default mode
-###Command Line Options
-Also see the global options above! 
+Otherwise, tamarin-tester runs in test mode: 
 
-| Command | Default | Description | 
-| --- | --- | --- |
-| `-r`, `--repetitions`|3| Number of samples to take for average proof running time|
-| `-o`, `--output` |PWD/benchmark.res| Where to output the resulting benchmark file|
-| `-f`, `--flags` |NA| Flags to passed to Tamarin|
+| Long Option | Short Option | Default | Description
+| --- | --- | --- | --- |
+|--protocols | -p | Working Directory | The directory containing protocols you want to test/benchmark |
+|--verbose | -v | FLAG | Runs tamarin-tester with additional log messages |
+|--contingency | -c | 2 | When running in test mode, tamarin-tester will wait for tamarin-prover to return a result in at most contingency * expected_runtime for a given protocol.| 
+|--maxproof | -mp | NA | Denotes the maximum time to wait for tamarin-prover to return a proof. In Test mode this defaults to a value calculated from the benchmark file. |
+|--maxcheck | -mc | NA | Denotes the maximum time to wait for tamarin-prover to return a well-formedness check. In this TESt mode this defaults to a value calculated from the benchmark file. |
+|--input | -i | Protocols Directory | In Test Mode, the path to read the benchmark from |
+|--overtime | -over | FLAG | In Test mode, when a max proof time has been specified, filter our protocols which are expected not to terminate. |  
 
-###Tag Meanings
-
+##Output
+In benchmark mode: 
 | Tag | Meaning |
 | --- | --- |
 | CHECK TIMEOUT | Checking well-formedness for the given protocol timed out (`maxcheck`) and it will be omitted from the benchmark |
 | MALFORMED | The given protcol is not well-formed and it will be omitted from the benchmark |
 | BENCH TIMEOUT | Tamarin did not terminate in the time specified (`maxproof`) and this protocol will be omitted from the benchmark|
-| NO LEMMAS | This protocol did not contain any lemmas to prove, so there is nothing to benchmark, a flag may need to be passed to Tamarin to enable an `IFDEF` |
-| INFORMATIONAL | A message for the user from tamarin-tester itself |
-| ERROR | A fatal error occurred and the program will terminate |
+| NO LEMMAS | This protocol did not contain any lemmas to prove, so there is nothing to benchmark, a flag may need to be passed to Tamarin to enable an `IFDEF`, alternatively you may annotate the protocol file with a line of the form: `tamarin-tester-flags:FLAGS` which will lead to tamarin-tester passing through this flag to tamarin-prover only for this protocol file |
+##Passing Flags to Tamarin
 
-##Testing a build
-This mode is selected when the `-b` or `--benchmark` flag is passed. Flag for Tamarin are parsed from the benchmark file
-###Command Line Options
-Also see the global options above! 
-
-| Command | Default | Description | 
-| --- | --- | --- |
-| `-b`, `--benchmark` |NA| The benchmark file to load to test against|
-| `-c`, `--contingency` |2| (integer) factor to multiply expected running time by|
-
-###Protocol Tag Meanings
+In test mode: 
 
 | Tag | Meaning |
 | --- | --- |
 | PASSED | This protocol has identical lemma results and stepsizes under the new tamarin build as did under the benchmarked Tamarin build |
 | WARNING | This protocol has identical lemma results (true/false) but there are minor differences e.g. stepsize |
+| FAILED | The new Tamarin build disagress with the benchmarked build for one or more lemmas |
 | NO LEMMAS | The benchmarked protocol had no lemmas and consequently there is nothing to compare |
 | MISSING | The protocol was in the protocols directory but not in the benchmark file and hence could not be checked |
-| OVERTIME | The average runtime for this protocol is higher than the max allowed run time and hence it is expected to timeout |
-| FAILED | The new Tamarin build disagress with the benchmarked build for one or more lemmas |
+| OVERTIME | The average runtime for this protocol is higher than the max allowed run time and hence it was expected to timeout, only occurs if the `--overtime` flag is passed. Otherwise these cases are treated as failures. |
 
-###Reason Tag Meanings
+For PASSED, WARNING, FAILED, there will be attached reason messages: 
 
 | Tag | Meaning |
 | --- | --- |
@@ -107,19 +99,9 @@ Also see the global options above!
 | INCORRECT | This lemma has a different truth value with the new build |
 | TIMEOUT | This protocol failed to terminate in the allotted time which is the contingency value (argument) c * avgRunTime (from the benchmark file) for the protocol file |
 
-###Other tags
-
-| Tag | Meaning |
-| --- | --- |
-| INFORMATIONAL | A message for the user from tamarin-tester itself |
-| ERROR | A fatal error occurred and the program will terminate |
-
-##Benchmark Files
-This have a relatively simple structure. Comment lines begin with `#`, there should be a single FLAG line which begins with `$` and then each protocol occupies a single line with the format 
-
-```
-SHA-256 Hash | Diff | List of (Lemma Name, Validity, Steps) tuples | Average Runtime
-```
-
-##Internals 
-TODO
+##Contact 
+Dennis Jackson
+Doctoral student
+Computer Science Department
+University of Oxford
+dennis (dot) jackson (at) cs (dot) ox (dot) ac (dot) uk 
