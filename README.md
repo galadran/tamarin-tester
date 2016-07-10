@@ -72,6 +72,7 @@ Otherwise, tamarin-tester runs in test mode:
 ##Output
 
 In benchmark mode: 
+
 | Tag | Meaning |
 | --- | --- |
 | CHECK TIMEOUT | Checking well-formedness for the given protocol timed out (`maxcheck`) and it will be omitted from the benchmark |
