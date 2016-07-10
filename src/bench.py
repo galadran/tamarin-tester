@@ -30,9 +30,9 @@ class Bencher:
 			vdp = validDiffProtocol(self.tamarin,p,self.config.checkTime)
 			if vp !=1 and vdp != 1:
 				if vp + vdp < 0:
-					tqdm.write(CHECK_TIMEOUT + p[len(path):])
+					tqdm.write(CHECK_TIMEOUT + p[len(self.config.protocols):])
 				else:
-					tqdm.write(MALFORMED + p[len(path):])
+					tqdm.write(MALFORMED + p[len(self.config.protocols):])
 				continue
 			else:
 				validProtocols.append(p)
