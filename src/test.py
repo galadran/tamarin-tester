@@ -112,7 +112,7 @@ class Tester:
 			#NoLemmas means that the benchmark had nothing to prove and hence we cannot test here
 			if "NOLEMMAS" in b.lemmas:
 				self.nolemmas += 1
-				tqdm.write(NOLEMMAS + self.hashToPath[b.fileHash][len(config.protocols):])
+				tqdm.write(NO_LEMMAS + self.hashToPath[b.fileHash][len(config.protocols):])
 				continue
 			#Here we check for well formedness
 			if (not b.diff and validNormProtocol(self.tamarin,self.hashToPath[b.fileHash],self.config.checkTime)) or (b.diff and validDiffProtocol(self.tamarin,self.hashToPath[b.fileHash],self.config.checkTime)):
