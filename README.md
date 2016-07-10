@@ -11,7 +11,7 @@ The tool automatically tests the quickest to verify protocols first in order to 
 ###Benchmarking
 <a href="https://asciinema.org/a/bty6vz7v4xfzf0j0etong4fbh"><img src="https://asciinema.org/a/bty6vz7v4xfzf0j0etong4fbh.png" alt="Classic" width="400" border="0"></a>
 ###A passing test
-<a href="https://asciinema.org/a/eplydwh1w5hlxw6k7njq4ulsv"><img src="https://asciinema.org/a/eplydwh1w5hlxw6k7njq4ulsv" alt="Classic" width="400" border="0"></a>
+<a href="https://asciinema.org/a/eplydwh1w5hlxw6k7njq4ulsv"><img src="https://asciinema.org/a/eplydwh1w5hlxw6k7njq4ulsv.png" alt="Classic" width="400" border="0"></a>
 ###A failing test
 <a href="https://asciinema.org/a/a4g4112qy7i95sl9rbko9kmxu"><img src="https://asciinema.org/a/a4g4112qy7i95sl9rbko9kmxu.png" alt="Classic" width="400" border="0"></a>
 
