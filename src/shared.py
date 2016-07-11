@@ -56,8 +56,8 @@ def getUniqueProtocols(path):
 	return unique		
 
 		
-VERSION = "Tamarin Tester v1.0.beta"
-DESCRIPTION = "This program can be used to generate benchmark files for Tamarin which record correct results for a directory of protocols. Then it can be used to test an altered Tamarin compilation for correctness by comparing against these results. First navigate to a directory containing finished protocols and run Tamarin-Tester GOOD_TAMARIN_PATH. Then run Tamarin-Tester DEV_TAMARIN_PATH --b benchmark.txt and inspect the results."
+VERSION = "Tamarin Tester v1.0.beta2"
+DESCRIPTION = "tamarin-tester is a tool for testing the correctness of tamarin-prover builds by comparing their output to known-good builds. For a more comprehensive overview, consult the README distributed with this program. In general, you may run tests against benchmark files or generate these benchmark files yourself. Authored by Dennis Jackson at the University of Oxford."
 
 TERMINAL = Terminal()
 
@@ -76,6 +76,6 @@ STEPSIZE_DEC= TERMINAL.bold(TERMINAL.yellow("\t STEPSIZE DEC: "))
 TIMEOUT= TERMINAL.bold(TERMINAL.red("\t TIMEOUT "))
 
 OVERTIME= TERMINAL.yellow(TERMINAL.bold("OVERTIME "))
-MISSING= TERMINAL.yellow(TERMINAL.bold("MISSING "))
+NO_BENCHMARK= TERMINAL.yellow(TERMINAL.bold("NO BENCHMARK "))
 FAILED= TERMINAL.bold(TERMINAL.red("FAILED "))
 PASSED= TERMINAL.bold(TERMINAL.green("PASSED "))

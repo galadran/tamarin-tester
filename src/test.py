@@ -24,8 +24,9 @@ class Tester:
 		
 		if config.absolute == 0.0:
 			maxTime = 0.0
-			for b in self.benchmarks:
-				maxTime = max(maxTime,b.avgTime)
+			for b in self.benchmarks :
+				if b.fileHash in self.hashToPath.keys():
+					maxTime = max(maxTime,b.avgTime)
 			config.absolute = maxTime*config.contingency
 			if self.config.verbose:
 				print(INFORMATIONAL + "Loaded default max proof time from file " + prettyTime(config.checkTime))
@@ -35,7 +36,8 @@ class Tester:
 		if config.checkTime == 0.0:
 			maxTime = 0.0
 			for b in self.benchmarks:
-				maxTime = max(maxTime,b.avgTime)
+				if b.fileHash in self.hashToPath.keys():
+					maxTime = max(maxTime,b.avgTime)
 			config.checkTime = min(maxTime,config.absolute)
 			if self.config.verbose:
 				print(INFORMATIONAL + "Used default max check time: (min(prooftime, maxFileTime)) " + prettyTime(config.checkTime))
@@ -127,7 +129,7 @@ class Tester:
 				print(OVERTIME+ self.hashToPath[h][len(config.protocols):])
 			else:
 				self.missing+= 1
-				print(MISSING + self.hashToPath[h][len(config.protocols):])
+				print(NO_BENCHMARK + self.hashToPath[h][len(config.protocols):])
 		td = time() - start
 		print(INFORMATIONAL + "Finished testing in " + prettyTime(td))
 		self.printSummary()
@@ -142,7 +144,7 @@ class Tester:
 		if self.failures != 0:
 			print(TERMINAL.bold(TERMINAL.red("FAILED: " + str(self.failures))))
 		if self.missing != 0:
-			print(TERMINAL.bold(TERMINAL.yellow("MISSING: " + str(self.missing))))
+			print(TERMINAL.bold(TERMINAL.yellow(NO_BENCHMARK + str(self.missing))))
 		if self.removedOvertime != 0:
 			print(TERMINAL.bold(TERMINAL.yellow("OVERTIME: " + str(self.removedOvertime))))			
 		if self.nolemmas != 0:
@@ -157,7 +159,7 @@ class Tester:
 			print("=====================================")
 		elif self.warning + self.missing + self.nolemmas + self.removedOvertime > 0:
 			print("=====================================")
-			print("=============== " + TERMINAL.yellow(TERMINAL.bold("????")) + " ================")
+			print("=============== " + TERMINAL.yellow(TERMINAL.bold("WARN")) + " ================")
 			print("=====================================")
 		else:
 			print("=====================================")
