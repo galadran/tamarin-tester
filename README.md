@@ -17,10 +17,10 @@ The tool automatically tests the quickest to verify protocols first in order to 
 
 ##Quickstart
 ###Installation
-Git Clone / Download the repo, ensure python3 and pip3 are installed, then run the following commands
+Git Clone / Download the repo, ensure python v3.5 the corresponding pip are installed, then run the following commands
 
 ```
-pip3 install tqdm blessings pyinstaller
+pip3.5 install tqdm blessings pyinstaller
 pyinstaller src/tamarin-tester.py --onefile
 ```
 If you wish to add the binary to your system path for convenience, it is suggested to put it in the same folder as default for the tamarin-prover. 
