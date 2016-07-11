@@ -15,7 +15,7 @@ mandatory.add_argument("tamarin", metavar='TAMARIN_BINARY', help="This argument 
 
 globals = parser.add_argument_group('Optional Arguments', 'These arguments can be passed to both modes')
 
-globals.add_argument("--protocols", metavar='DIR', help="The directory containing the protocols you wish to test/benchmark. The directory will be scanned recursively for all .spthy files. The default is to take the current working directory", type=PathType(exists=True, type='dir'),default= getcwd())
+globals.add_argument("-p","--protocols", metavar='DIR', help="The directory containing the protocols you wish to test/benchmark. The directory will be scanned recursively for all .spthy files. The default is to take the current working directory", type=PathType(exists=True, type='dir'),default= getcwd())
 globals.add_argument("--flags", metavar='FLAGS',help="User defined flags to pass to the tamarin binary, EVERY time it is invoked. See the README for how to set flags on a per-protocol basis",type=str)
 globals.add_argument("-v","--verbose",action='store_true', help='Run in verbose mode')
 globals.add_argument('--version', action='version',version=VERSION,help='Print version information and exit')
