@@ -17,7 +17,9 @@ The tool automatically tests the quickest to verify protocols first in order to 
 
 ##Quickstart
 ###Installation
-Git Clone / Download the repo, ensure python v3.5 the corresponding pip are installed, then run the following commands
+There are binaries for x64 Ubuntu 16.04 and Mac OSX El Capitan on the release page. Alternatively you can build from source:
+
+Git Clone / Download the repo, ensure python v3.5 and pip are installed, then run the following commands
 
 ```
 pip3.5 install tqdm blessings pyinstaller
@@ -27,9 +29,7 @@ If you wish to add the binary to your system path for convenience, it is suggest
 ```
 cp dist/tamarin-tester ~/.local/bin/tamarin-tester
 ```
-
-An already built binary for 64-bit Ubuntu 16.04 is on the Releases page, but has only been tested on one machine. 
-
+s
 ###Building a benchmark
 Firstly, we need to produce a benchmark file from a known-good build of tamarin
 ```
