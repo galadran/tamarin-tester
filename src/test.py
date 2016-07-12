@@ -147,7 +147,7 @@ class Tester:
 		if self.failures != 0:
 			print(TERMINAL.bold(TERMINAL.red("FAILED: " + str(self.failures))))
 		if self.missing != 0:
-			print(TERMINAL.bold(TERMINAL.yellow(NO_BENCHMARK + str(self.missing))))
+			print(TERMINAL.bold(TERMINAL.yellow("NO BENCHMARK: " + str(self.missing))))
 		if self.removedOvertime != 0:
 			print(TERMINAL.bold(TERMINAL.yellow("OVERTIME: " + str(self.removedOvertime))))			
 		if self.nolemmas != 0:
