@@ -49,6 +49,7 @@ This will run the test and display a live progress report. Pay attention to the 
 
 ###Both Modes (Mandatory)
 This argument is mandatory in BOTH modes:
+
 | Name | Description |
 | --- |  --- | 
 |TAMARIN_BINARY  | This argument is the path to the tamarin binary you wish to test/benchmark|
@@ -61,31 +62,34 @@ These arguments are optional and can be applied to both modes
 | -p PROTOCOL_DIR, --protocols PROTOCOL_DIR | The directory containing the protocols you wish to test/benchmark. The directory will be scanned recursively for all .spthy files. The default is to take the current working directory |
 |  --flags FLAGS | User defined flags to pass to the tamarin binary, EVERY time it is invoked. See the README for how to set flags on a per-protocol basis|
 |  -v, --verbose   |      Run in verbose mode|
-|  --version         |    Print version information and exit|
- | -h, --help        |    Print this help message|
+|  --version        |    Print version information and exit|
+| -h, --help        |    Print this help message|
 
 ###Test Mode (default):
-This mode is selected by default  
+This mode is selected by default 
+
 | Name |Description |
 | --- | --- | 
- | -i BENCHMARK_FILE, --input BENCHMARK_FILE| By default tamarin-tester will look for a file named 'benchmark.res' located in the top level protocol directory. This option allows you to select a different file.|
- | --contingency 2     |  When running a test for a protocol file. tamarin-tester will wait for the expected running time (in seconds) X the contingency factor. This is by default 2, but if you have benchmark file from a faster machine than this machine, you may need to raise it.|
- | --overtime     |       This option is only applied if you also specify a max proof time and if passed will tell tamarin-tester to not test any protocols with an expected running time greater than the max proof time. These protocols will be reported as OVERTIME in the statistics rather than FAILED|
+| -i BENCHMARK_FILE, --input BENCHMARK_FILE| By default tamarin-tester will look for a file named 'benchmark.res' located in the top level protocol directory. This option allows you to select a different file.|
+| --contingency 2     |  When running a test for a protocol file. tamarin-tester will wait for the expected running time (in seconds) X the contingency factor. This is by default 2, but if you have benchmark file from a faster machine than this machine, you may need to raise it.|
+| --overtime     |       This option is only applied if you also specify a max proof time and if passed will tell tamarin-tester to not test any protocols with an expected running time greater than the max proof time. These protocols will be reported as OVERTIME in the statistics rather than FAILED|
 
-###BENCHMARK Mode:
+###Benchmark Mode:
 This mode is selected by passing --benchmark
+
 | Name |Description |
 | --- | --- | 
 |  --benchmark    |       This flag tells tamarin-tester to run in benchmark mode. Consequently it is mandatory to pass -mc and -mp flags detailed in the Timeout Arguments section below|
 |  -o BENCHMARK_FILE, --output BENCHMARK_FILE| This is the location to write the benchmark file to after completion. By default it will be written to the top level of the protocols directory, named 'benchmark.res'|
- | --repetitions 1     |  When calculating the average running time of a protocol, this is the number of samples to take. By default it is set to 1. If you need to benchmark on a machine with an unstable workload, setting it high will produce more reliable results at the cost of much greater execution time|
+| --repetitions 1     |  When calculating the average running time of a protocol, this is the number of samples to take. By default it is set to 1. If you need to benchmark on a machine with an unstable workload, setting it high will produce more reliable results at the cost of much greater execution time|
 
 ###Timeout Arguments:
 These arguments are MANDATORY for BENCHMARK mode but OPTIONAL for TEST mode
+
 | Name |Description |
 | --- | --- | 
 |  -mc FLOAT, --maxcheck FLOAT| Maximum time (in seconds) to run well-formedness check for. In TEST Mode, this is loaded from the file as the maximum running time of the protocols benchmarked, that are also in the protocol directory.|
- | -mp FLOAT, --maxproof FLOAT| Maximum time (in seconds) to run a proof for. In TEST Mode, this is loaded from the file as the maximum running time of the protocols benchmarked that are also in the protocol directo when a max proof time has been specified, filter our protocols which are expected not to terminate. |
+| -mp FLOAT, --maxproof FLOAT| Maximum time (in seconds) to run a proof for. In TEST Mode, this is loaded from the file as the maximum running time of the protocols benchmarked that are also in the protocol directo when a max proof time has been specified, filter our protocols which are expected not to terminate. |
 
 ##Output
 
