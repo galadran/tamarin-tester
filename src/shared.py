@@ -56,8 +56,8 @@ def getUniqueProtocols(path):
 	return unique		
 
 		
-VERSION = "Tamarin Tester v1.0.beta2"
-DESCRIPTION = "tamarin-tester is a tool for testing the correctness of tamarin-prover builds by comparing their output to known-good builds. For a more comprehensive overview, consult the README distributed with this program. In general, you may run tests against benchmark files or generate these benchmark files yourself. Authored by Dennis Jackson at the University of Oxford."
+VERSION = "Tamarin Tester v1.0"
+DESCRIPTION = "tamarin-tester is a tool for testing the correctness of tamarin-prover builds by comparing their output to known-good builds. For a more comprehensive overview, consult the README distributed with this program. In general, you may run tests against benchmark files or generate these benchmark files yourself. Authored by Dennis Jackson, Computer Science Dept, University of Oxford."
 
 TERMINAL = Terminal()
 
