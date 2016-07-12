@@ -17,16 +17,15 @@ The tool automatically tests the quickest to verify protocols first in order to 
 
 ##Quickstart
 ###Installation
-There are binaries for x64 Ubuntu 16.04 and OS X El Capitan on the release page. Alternatively you can build from source:
-
-Git Clone / Download the repo, ensure python v3.5 and pip are installed, then run the following commands
+Git Clone / Download the repo, ensure python v3.5 and pip are installed, then run the following command:
 
 ```
-pip3.5 install tqdm blessings pyinstaller
-pyinstaller src/tamarin-tester.py --onefile
+pip3.5 install tqdm blessings 
 ```
-If you wish to add the binary to your system path for convenience, it is suggested to put it in the same folder as default for the tamarin-prover. 
+You can then invoke tamarin-tester with `./src/tamarin-tester.py`.If you wish to build tamarin-tester into a binary for ease of use, you can build the binary with pyinstaller:
 ```
+pip3.5 install pyinstaller
+pyinstaller src/tamarin-tester.py --onefile 
 cp dist/tamarin-tester ~/.local/bin/tamarin-tester
 ```
 
