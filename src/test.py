@@ -124,14 +124,14 @@ class Tester:
 				tqdm.write(FAILED + self.hashToPath[b.fileHash][len(config.protocols):] + "\n" + MALFORMED + " should pass well-formedness check")
 				self.failures+= 1
 		#Print out protocols we could not find a benchmark for
-		missing = list()
+		missed = list()
 		for h in hashes:
 			if h in self.wereOvertime:
 				print(OVERTIME+ self.hashToPath[h][len(config.protocols):])
 			else:
-				self.missing+= 1
-				missing.append(self.hashToPath[h][len(config.protocols):])
-		for m in sorted(missing, key=str.lower):
+				missed.append(self.hashToPath[h][len(config.protocols):])
+		self.missing = len(missed)
+		for m in sorted(missed, key=str.lower):
 		    print(NO_BENCHMARK + m)
 		td = time() - start
 		print(INFORMATIONAL + "Finished testing in " + prettyTime(td))
