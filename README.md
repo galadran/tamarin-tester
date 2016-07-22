@@ -30,7 +30,7 @@ cp dist/tamarin-tester ~/.local/bin/tamarin-tester
 ```
 
 ###Building a benchmark
-Firstly, we need to produce a benchmark file from a known-good build of tamarin
+Firstly, we need to produce a benchmark file from a known-good build of tamarin,alternatively there are benchmarks created from the current master release of tamarin-prover in `data/benchmarks`
 ```
 tamarin-tester TAMARIN -p PROTOCOLS --benchmark -maxproof FLOAT --maxcheck FLOAT
 ```
