@@ -140,6 +140,10 @@ class Tester:
 		td = time() - start
 		print(INFORMATIONAL + "Finished testing in " + prettyTime(td))
 		self.printSummary()
+		if (self.failures > 0):
+			exit(1)
+		else:
+			exit(0)
 
 	def printSummary(self):
 		#'Pretty Print' a summary based on our counters

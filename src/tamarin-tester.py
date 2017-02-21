@@ -97,4 +97,3 @@ else:
 			t.filterOvertime()
 	t.estTestTime()
 	t.performTest()
-exit(0)

@@ -1,5 +1,6 @@
 from tqdm import tqdm
 from time import time
+from sys import exit
 
 from shared import *
 from results import resultToString
@@ -14,7 +15,7 @@ class Bencher:
 		self.tamarin = Tamarin(config)
 		self.uniqueProtocols = getUniqueProtocols(self.config.protocols)
 		self.original = len(self.uniqueProtocols)
-		
+
 	def estBenchTime(self):
 		#Print a worst case time estimate
 		count = self.original
@@ -39,7 +40,7 @@ class Bencher:
 		td = time() - start
 		print(INFORMATIONAL + "Finished well-formedness checks in " + prettyTime(td))
 		return validProtocols
-		
+
 	def benchProtocol(self,protocol_path):
 		#Derive a benchmark for a particular protocol
 		config = self.config
@@ -80,8 +81,9 @@ class Bencher:
 		print(INFORMATIONAL + "Benchmark written to " + config.output)
 		self.check = self.original - len(protocols)
 		self.printSummary()
+		exit(0)
 
-		
+
 	def printSummary(self):
 		#'Pretty Print' a summary based on our counters
 		print("=====================================")
@@ -89,15 +91,13 @@ class Bencher:
 		print("=====================================")
 		print(TERMINAL.bold("TOTAL: " + str(self.original)))
 		if self.check > 0:
-			print(TERMINAL.bold(TERMINAL.red("FAILED CHECK: " + str(self.check))))		
+			print(TERMINAL.bold(TERMINAL.red("FAILED CHECK: " + str(self.check))))
 		if self.failed > 0:
 			print(TERMINAL.bold(TERMINAL.red("FAILED BENCHMARK: " + str(self.failed))))
-		if self.nolemmas > 0: 
+		if self.nolemmas > 0:
 			print(TERMINAL.bold(TERMINAL.yellow("NO LEMMAS: " + str(self.nolemmas))))
 		if self.original - self.failed - self.nolemmas > 0:
 			print(TERMINAL.bold(TERMINAL.green("SUCCESSFUL: " + str(self.original - self.failed - self.check -self.nolemmas ))))
 		print("=====================================")
 		print("=====================================")
 		print("=====================================")
-
-
