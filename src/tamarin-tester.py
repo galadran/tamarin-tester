@@ -3,10 +3,10 @@
 from argparse import ArgumentParser,FileType
 from pathtype import PathType
 from os import getcwd, path
-from sys import exit 
+from sys import exit
 #Internal Imports
 from shared import *
-from test import Tester 
+from test import Tester
 from bench import Bencher
 
 parser = ArgumentParser(description=DESCRIPTION,add_help=False)
@@ -26,6 +26,7 @@ test = parser.add_argument_group('TEST Mode','This mode is selected by default')
 test.add_argument("-i","--input", metavar='BENCHMARK_FILE',help="By default tamarin-tester will look for a file named 'benchmark.res' located in the top level protocol directory. This option allows you to select a different file.",type=PathType(exists=True, type='file'))
 test.add_argument("--contingency", metavar='2', help="When running a test for a protocol file. tamarin-tester will wait for the expected running time (in seconds) X the contingency factor. This is by default 2, but if you have benchmark file from a faster machine than this machine, you may need to raise it.", type=int,default=2)
 test.add_argument("--overtime", help="This option is only applied if you also specify a max proof time and if passed will tell tamarin-tester to not test any protocols with an expected running time greater than the max proof time. These protocols will be reported as OVERTIME in the statistics rather than FAILED",action='store_true')
+test.add_argument("--failfast", help="If passed, the program will quit upon a failing test with return code 1",action='store_true')
 
 bench = parser.add_argument_group('BENCHMARK Mode','this mode is selected by passing --benchmark')
 bench.add_argument("--benchmark", help="This flag tells tamarin-tester to run in benchmark mode. Consequently it is mandatory to pass -mc and -mp flags detailed in the Timeout Arguments section below", action='store_true')
@@ -41,7 +42,7 @@ args = parser.parse_args()
 if args.benchmark and (args.maxproof is None or args.maxcheck is None):
 				print(ERROR + "In benchmark mode you MUST specify how long to attempt checks and proofs for!")
 				exit(1)
-				
+
 config = Settings(args)
 
 print(INFORMATIONAL + VERSION)
@@ -51,7 +52,7 @@ if config.verbose:
 if args.benchmark:
 	print(INFORMATIONAL + "Mode: Create Benchmark")
 	if args.output is not None:
-		config.output = args.output 
+		config.output = args.output
 	else:
 		config.output = config.protocols+"/benchmark.res"
 		print(INFORMATIONAL + "Using default output location " + config.output)
@@ -61,7 +62,7 @@ if args.benchmark:
 	config.absolute = args.maxproof
 	config.checkTime = args.maxcheck
 	if config.verbose:
-		print(INFORMATIONAL + "Running Tamarin Executable: " + config.tamarin)	
+		print(INFORMATIONAL + "Running Tamarin Executable: " + config.tamarin)
 		print(INFORMATIONAL + "Benchmark Output Location: " + config.output)
 		print(INFORMATIONAL + "Benchmarking Protocols in: " + config.protocols)
 		print(INFORMATIONAL + "User flags: " + config.userFlags)
@@ -86,7 +87,7 @@ else:
 		config.checkTime = args.maxcheck
 	print(INFORMATIONAL + "Mode: Testing")
 	if config.verbose:
-		print(INFORMATIONAL + "Testing Tamarin Executable: " + config.tamarin)	
+		print(INFORMATIONAL + "Testing Tamarin Executable: " + config.tamarin)
 		print(INFORMATIONAL + "Benchmark Input Location: " + str(config.input))
 		print(INFORMATIONAL + "Testing Protocols in: " + config.protocols)
 		print(INFORMATIONAL + "Contingency Factor: " + str(config.contingency))
@@ -96,3 +97,4 @@ else:
 			t.filterOvertime()
 	t.estTestTime()
 	t.performTest()
+exit(0)

@@ -1,5 +1,5 @@
 from blessings import Terminal
-from glob import glob 
+from glob import glob
 from hashlib import sha256
 from datetime import timedelta
 
@@ -13,16 +13,17 @@ class Settings:
 		self.removeOvertime = args.overtime
 		self.absolute = 0.0
 		self.checkTime = 0.0
+		self.failfast = args.failfast
 		self.input = ""
 		self.output = ""
 		if args.flags is not None:
 			self.userFlags = args.flags #Any user defined flags to pass to Tamarin
 		else:
 			self.userFlags = ""
-		
+
 def prettyTime(s):
 	return  str(timedelta(seconds=s)).split('.', 1)[0]
-	
+
 def validNormProtocol(tamarin,path,t):
 	return tamarin.isWellFormed(path,0,t)
 
@@ -33,12 +34,12 @@ def runAsDiff(tamarin,path,t):
 	if validNormProtocol(tamarin,path,t) != 1 and validDiffProtocol(tamarin,path,t) == 1:
 		return 1
 	else:
-		return 0	
-		
+		return 0
+
 def getProtocols(path):
 		#Returns a list of strings holding each spthy file
 		return glob(path+"/**/*.spthy",recursive=True)
-		
+
 def getUniqueProtocols(path):
 	hashes = set()
 	unique = list()
@@ -53,9 +54,9 @@ def getUniqueProtocols(path):
 	duplicates = len(ps)-len(hashes)
 	if duplicates > 0:
 		print(INFORMATIONAL + "Ignoring "+ str(duplicates) + " duplicate protocols (identical hashes)")
-	return unique		
+	return unique
 
-		
+
 VERSION = "Tamarin Tester v1.0"
 DESCRIPTION = "tamarin-tester is a tool for testing the correctness of tamarin-prover builds by comparing their output to known-good builds. For a more comprehensive overview, consult the README distributed with this program. In general, you may run tests against benchmark files or generate these benchmark files yourself. Authored by Dennis Jackson, Computer Science Dept, University of Oxford."
 

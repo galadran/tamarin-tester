@@ -1,6 +1,7 @@
 from tqdm import tqdm
 from time import time
 from hashlib import sha256
+from sys import exit
 
 from shared import *
 from results import fileToResults,compareResults
@@ -10,18 +11,18 @@ from interface import Tamarin
 class Tester:
 	def __init__(self, config):
 		self.config = config
-	
+
 		self.tamarin = Tamarin(config)
-		
+
 		#Load protocols and benchmarks
 		self.hashToPath = dict()
 		ps = getUniqueProtocols(self.config.protocols)
 		for p in ps:
 			h = sha256(open(p,'rb').read()).hexdigest()
 			self.hashToPath[h] = p
-			
+
 		self.flags, self.benchmarks = fileToResults(config.input)
-		
+
 		if config.absolute == 0.0:
 			maxTime = 0.0
 			for b in self.benchmarks :
@@ -32,7 +33,7 @@ class Tester:
 				print(INFORMATIONAL + "Loaded default max proof time from file " + prettyTime(config.checkTime))
 		elif self.config.verbose:
 			print(INFORMATIONAL + "Max Proof Time (from argument): " + prettyTime(config.absolute))
-			
+
 		if config.checkTime == 0.0:
 			maxTime = 0.0
 			for b in self.benchmarks:
@@ -43,10 +44,10 @@ class Tester:
 				print(INFORMATIONAL + "Used default max check time: (min(prooftime, maxFileTime)) " + prettyTime(config.checkTime))
 		elif self.config.verbose:
 			print(INFORMATIONAL + "Max Check Time (from argument): " + prettyTime(config.checkTime))
-			
+
 		#Reload the parser in case we made any changes
 		self.config = config
-		
+
 		#Counters for results
 		self.failures = 0
 		self.passed = 0
@@ -56,7 +57,7 @@ class Tester:
 		self.total = len(self.hashToPath.keys())
 		self.removedOvertime = 0
 		self.wereOvertime = list()
-	
+
 	def filterOvertime(self):
 		orig = len(self.benchmarks)
 		filtered = list()
@@ -67,15 +68,15 @@ class Tester:
 				self.wereOvertime.append(b.fileHash)
 		self.benchmarks = filtered
 		self.removedOvertime = len(self.wereOvertime)
-		print(INFORMATIONAL + "Removed " + str(self.removedOvertime) 
-				+ " overtime protocols")		
-	
+		print(INFORMATIONAL + "Removed " + str(self.removedOvertime)
+				+ " overtime protocols")
+
 	def checkOvertime(self):
 		goingOvertime = 0
 		maxSeen = 0.0
 		for b in sorted(self.benchmarks, key=lambda bench: bench.avgTime):
 			if b.fileHash in self.hashToPath.keys() and b.avgTime > self.config.absolute:
-					goingOvertime += 1 
+					goingOvertime += 1
 					maxSeen = max(maxSeen, b.avgTime)
 		if goingOvertime > 0:
 			if not self.config.removeOvertime:
@@ -83,14 +84,14 @@ class Tester:
 			return 1
 		else:
 			return 0
-			
+
 	def estTestTime(self):
 		totalTime = 0.0
 		for b in sorted(self.benchmarks, key=lambda bench: bench.avgTime):
 			if b.fileHash in self.hashToPath.keys():
-				totalTime += min(b.avgTime,self.config.absolute) 
+				totalTime += min(b.avgTime,self.config.absolute)
 		print(INFORMATIONAL + "Expected Test runtime is at least " + prettyTime(totalTime))
-	
+
 	def ignoreBench(self, b):
 		#Returns 1 if a benchmark should be ignored, 0 otherwise
 		if "TIMEOUT" in b.lemmas and b.avgTime > config.absolute:
@@ -107,6 +108,9 @@ class Tester:
 		print(INFORMATIONAL +"Testing protocols...")
 		start = time()
 		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),smoothing=1.0,leave=False,desc="Testing against benchmarks"):
+			if self.config.failfast and self.failures > 0:
+				print(ERROR + " a test failed and failfast is enabled. Quitting...")
+				exit(1)
 			if b.fileHash not in hashes or "TIMEOUT" in b.lemmas:
 				#We can ignore this benchmark as either we have no data or its not in our test input
 				continue
@@ -149,7 +153,7 @@ class Tester:
 		if self.missing != 0:
 			print(TERMINAL.bold(TERMINAL.yellow("NO BENCHMARK: " + str(self.missing))))
 		if self.removedOvertime != 0:
-			print(TERMINAL.bold(TERMINAL.yellow("OVERTIME: " + str(self.removedOvertime))))			
+			print(TERMINAL.bold(TERMINAL.yellow("OVERTIME: " + str(self.removedOvertime))))
 		if self.nolemmas != 0:
 			print(TERMINAL.bold(TERMINAL.yellow("NOLEMMAS: " + str(self.nolemmas))))
 		if self.warning != 0:
