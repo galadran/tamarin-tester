@@ -1,11 +1,10 @@
-#!/usr/bin/env python3.5
+#!/usr/bin/env python3
 
 from argparse import ArgumentParser
 from sys import exit 
 from evaluate import run_evaluation
 import config
 import db
-import os
 
 parser = ArgumentParser(description="TODO",add_help=True)
 
@@ -16,7 +15,7 @@ parser.add_argument("-s","--simple",action='store_true',\
 parser.add_argument("-db","--database",\
                       help="Specify an alternative database,"\
                       +" the default is stored in your user directory under ~/.config/tamarin-tester/results.db",\
-                      default="~/.config/tamarin-tester/results.db")
+                      default=config.DATABASE_PATH) #TODO Change
 
 subparsers = parser.add_subparsers(help="Sub Commands",dest="mode",)
 

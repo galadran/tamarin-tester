@@ -5,9 +5,11 @@ from sys import exit
 #Changes made to variables at the module level are reflected in all modules importing it. 
 #These values are set by main when it parses its arguments.
 VERBOSE = False
-DEBUG = False
+DEBUG = True
 SIMPLE = False
-DATABASE_PATH = ""
+DATABASE_PATH = "database.sqlite"
+
+PRODUCTION_DATABASE_PATH = "~/.config/tamarin-tester/results.db"
 
 def debug(text):
 	if DEBUG:

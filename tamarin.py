@@ -1,5 +1,5 @@
 import config
-
+import os
 
 def getGitHubInfo():
 	#Using Github, get the Tamarin-prover branches and latest commits
@@ -31,6 +31,7 @@ def ingestTamarin(path):
 	#Input: Path to a Tamarin Binary
 	#Grabs all the relevant info and sticks it in the database
 	#No Need to return anything
+	return ""
 
 def getOrBuildTamarin(dir):
 	commit = getGitCommit(dir)
@@ -60,9 +61,15 @@ def getKnownCommits(branch):
 	#Look in DB and in Github and get the list of commits for a branch
 	if branch == "all": 
 		#TODO
+		return ""
 	else:
+		return ""
 		#Filter by Branch
 	return []
+
+def getGitBranches():
+	#TODO??/
+	return ""
 
 def cmdLineToId(text):
 	#Can be a path, a git directory or a git branch
