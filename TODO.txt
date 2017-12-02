@@ -1,0 +1,4 @@
+# Update the protocols to specify all their heuristic requirements as per Nick's change to .spthy files. 
+# Ensure Tamarin-tester can run for each if-def it finds. 
+# Find a neat way of doing tqdm and simple tqdm? 
+# Patch the Make file to allow for building and storing inside the git directory 0 or to append other information?
