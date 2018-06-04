@@ -10,6 +10,7 @@ class Settings:
 		self.contingency = args.contingency #Max multiples of benchmark time to wait for
 		self.repetitions = args.repetitions #How many samples to take for benchmark average
 		self.verbose = args.verbose
+		self.jenkins = args.jenkins
 		self.removeOvertime = args.overtime
 		self.absolute = 0.0
 		self.checkTime = 0.0
