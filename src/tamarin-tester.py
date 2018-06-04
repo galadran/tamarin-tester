@@ -20,6 +20,7 @@ globals.add_argument("-p","--protocols", metavar='PROTOCOL_DIR', help="The direc
 globals.add_argument("--flags", metavar='FLAGS',help="User defined flags to pass to the tamarin binary, EVERY time it is invoked. See the README for how to set flags on a per-protocol basis",type=str)
 globals.add_argument("-v","--verbose",action='store_true', help='Run in verbose mode')
 globals.add_argument('--version', action='version',version=VERSION,help='Print version information and exit')
+globals.add_argument('--jenkins',action='store_true',help='Suppresses TQDM progress bars')
 globals.add_argument('-h','--help', action='help', help='Print this help message')
 
 test = parser.add_argument_group('TEST Mode','This mode is selected by default')
@@ -48,6 +49,9 @@ config = Settings(args)
 print(INFORMATIONAL + VERSION)
 if config.verbose:
 	print(INFORMATIONAL + "Verbose Logging Enabled")
+
+if config.jenkins:
+    print(INFORMATIONAL + "Jenkins Friendly Output Enabled")
 
 if args.benchmark:
 	print(INFORMATIONAL + "Mode: Create Benchmark")

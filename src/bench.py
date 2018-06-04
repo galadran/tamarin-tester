@@ -26,7 +26,7 @@ class Bencher:
 		#Given a list of protocols, check well-formedness of each
 		validProtocols= list()
 		start = time()
-		for p in tqdm(self.uniqueProtocols,leave=False,smoothing=0.0,desc="Well Formedness Checks"):
+		for p in tqdm(self.uniqueProtocols,leave=False,smoothing=0.0,desc="Well Formedness Checks",disable=self.config.jenkins):
 			vp = validNormProtocol(self.tamarin,p,self.config.checkTime)
 			vdp = validDiffProtocol(self.tamarin,p,self.config.checkTime)
 			if vp !=1 and vdp != 1:
@@ -74,7 +74,7 @@ class Bencher:
 		output = open(config.output,'w')
 		print(INFORMATIONAL + "Benchmarking protocols...")
 		start = time()
-		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Benchmarking protocols"):
+		for p in tqdm(protocols,leave=False,smoothing=0.0,desc="Benchmarking protocols",disable=self.config.jenkins):
 			output.write(resultToString(self.benchProtocol(p))+"\n")
 		td = time() - start
 		print(INFORMATIONAL + "Finished benchmarking in " + prettyTime(td) + " seconds")

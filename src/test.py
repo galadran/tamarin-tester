@@ -107,7 +107,7 @@ class Tester:
 		#For each benchmark, sorted from quickest to slowest
 		print(INFORMATIONAL +"Testing protocols...")
 		start = time()
-		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),smoothing=1.0,leave=False,desc="Testing against benchmarks"):
+		for b in tqdm(sorted(self.benchmarks, key=lambda bench: bench.avgTime),smoothing=1.0,leave=False,desc="Testing against benchmarks",disable=self.config.jenkins):
 			if self.config.failfast and self.failures > 0:
 				print(ERROR + " a test failed and failfast is enabled. Quitting...")
 				exit(1)
